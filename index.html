@@ -400,10 +400,13 @@
         const statusMap = {
           'not-started': { bg: 'bg-slate-600/50', text: 'text-slate-300', label: 'Not Started' },
           'in-progress': { bg: 'bg-yellow-500/20', text: 'text-yellow-300', label: 'In Progress' },
+          'did-not-submit': { bg: 'bg-orange-500/20', text: 'text-orange-300', label: 'Did Not Submit' },
           'submitted': { bg: 'bg-blue-500/20', text: 'text-blue-300', label: 'Submitted' },
           'heard-back': { bg: 'bg-purple-500/20', text: 'text-purple-300', label: 'Heard Back' },
           'won': { bg: 'bg-emerald-500/20', text: 'text-emerald-300', label: 'Won! 🎉' },
-          'rejected': { bg: 'bg-red-500/20', text: 'text-red-300', label: 'Not Selected' }
+          'rejected': { bg: 'bg-red-500/20', text: 'text-red-300', label: 'Not Selected' },
+          'passed': { bg: 'bg-gray-500/20', text: 'text-gray-300', label: 'Deadline Passed' },
+          'withdrew': { bg: 'bg-indigo-500/20', text: 'text-indigo-300', label: 'Withdrew' }
         };
         return statusMap[status] || statusMap['not-started'];
       };
@@ -500,10 +503,13 @@
                       <option value="all">All</option>
                       <option value="not-started">Not Started</option>
                       <option value="in-progress">In Progress</option>
+                      <option value="did-not-submit">Did Not Submit</option>
                       <option value="submitted">Submitted</option>
                       <option value="heard-back">Heard Back</option>
                       <option value="won">Won!</option>
                       <option value="rejected">Not Selected</option>
+                      <option value="passed">Deadline Passed</option>
+                      <option value="withdrew">Withdrew</option>
                     </select>
                   </div>
 
@@ -620,6 +626,38 @@
                         {/* Tracking Section */}
                         <div className="border-t border-slate-700/50 pt-6">
                           <h4 className="text-sm font-semibold text-slate-300 mb-4">Track Your Progress</h4>
+                          
+                          {/* Quick Status Buttons */}
+                          <div className="mb-6 pb-6 border-b border-slate-700/50">
+                            <p className="text-xs text-slate-400 mb-3">Quick Mark:</p>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                onClick={() => updateTracking(scholarship.id, { status: 'passed' })}
+                                className="px-3 py-1 text-xs rounded bg-gray-500/20 text-gray-300 hover:bg-gray-500/40 transition-colors"
+                              >
+                                Deadline Passed
+                              </button>
+                              <button
+                                onClick={() => updateTracking(scholarship.id, { status: 'did-not-submit' })}
+                                className="px-3 py-1 text-xs rounded bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 transition-colors"
+                              >
+                                Did Not Submit
+                              </button>
+                              <button
+                                onClick={() => updateTracking(scholarship.id, { status: 'withdrew' })}
+                                className="px-3 py-1 text-xs rounded bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 transition-colors"
+                              >
+                                Withdrew
+                              </button>
+                              <button
+                                onClick={() => updateTracking(scholarship.id, { status: 'not-started' })}
+                                className="px-3 py-1 text-xs rounded bg-slate-600/50 text-slate-300 hover:bg-slate-600/70 transition-colors"
+                              >
+                                Reset
+                              </button>
+                            </div>
+                          </div>
+
                           <div className="space-y-3">
                             <label className="flex items-center gap-3 cursor-pointer">
                               <input
@@ -667,7 +705,7 @@
                             </label>
 
                             <div className="mt-4">
-                              <label className="block text-sm font-medium text-slate-300 mb-2">Result</label>
+                              <label className="block text-sm font-medium text-slate-300 mb-2">Final Result</label>
                               <select
                                 value={scholarship.tracking.result}
                                 onChange={(e) => {
