@@ -1,896 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dakota's Scholarship Finder</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animate-in {
-      animation: slideIn 0.3s ease-out;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dakota's Scholarship Finder - Hybrid Mode</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2csv/1.0.0/html2csv.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, h2, h3, .font-display {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f7ff 0%, #f8f4ff 100%);
+            min-height: 100vh;
+        }
+        
+        .card-gradient {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,244,255,0.95) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .tier-green { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 4px solid #10b981; }
+        .tier-yellow { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; }
+        .tier-red { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #ef4444; }
+        
+        .recommended-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .additional-badge {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-won { background: #dcfce7; color: #166534; }
+        .status-submitted { background: #dbeafe; color: #0c4a6e; }
+        .status-started { background: #fef3c7; color: #713f12; }
+        .status-withdrew { background: #f3f4f6; color: #374151; }
+        .status-deadline-passed { background: #fee2e2; color: #7f1d1d; }
+        .status-did-not-submit { background: #fce7f3; color: #831843; }
+        .status-waitlisted { background: #f3e8ff; color: #581c87; }
+        
+        .match-score {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .deadline-urgent { color: #dc2626; font-weight: 600; }
+        .deadline-soon { color: #ea580c; font-weight: 600; }
+        
+        .tier-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .tier-best { background: #d1fae5; color: #065f46; }
+        .tier-medium { background: #fef3c7; color: #713f12; }
+        .tier-reach { background: #fee2e2; color: #7f1d1d; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { 
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            } 
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            } 
+        }
+        
+        .scholarship-card {
+            transition: all 0.3s ease;
+        }
+        
+        .scholarship-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
 </head>
 <body>
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    const { Search, Filter, Calendar, DollarSign, ClipboardList, Users, ExternalLink, ChevronDown, Check } = {
-      Search: () => <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
-      Calendar: () => <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-      DollarSign: () => <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-      ClipboardList: () => <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
-      Users: () => <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 12H9m4 0a8 8 0 11-16 0 8 8 0 0116 0z" /></svg>,
-      ExternalLink: () => <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>,
-      ChevronDown: () => <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>,
-      Filter: () => <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>,
-      Check: () => <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>,
-    };
-
-    function ScholarshipFinder() {
-      const [scholarships, setScholarships] = useState([]);
-      const [filteredScholarships, setFilteredScholarships] = useState([]);
-      const [loading, setLoading] = useState(true);
-      const [searchTerm, setSearchTerm] = useState('');
-      const [selectedFilters, setSelectedFilters] = useState({
-        type: 'all',
-        minAmount: 0,
-        renewable: 'all',
-        status: 'all'
-      });
-      const [expandedId, setExpandedId] = useState(null);
-      const [sortBy, setSortBy] = useState('deadline');
-
-      const scholarshipData = [
-        {
-          id: 1,
-          name: "Colorado Water Conservation Board - Western Water Scholarship",
-          amount: 2000,
-          renewable: false,
-          deadline: "2026-04-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 3, gpa: 3.0 },
-          eligibility: "CO resident, high school senior, interested in water/environment",
-          description: "Supports Colorado youth interested in western water issues. Special consideration for those pursuing water careers.",
-          organization: "Colorado Water Conservation Board",
-          link: "https://denverfoundation.org/scholarships/"
-        },
-        {
-          id: 2,
-          name: "Diane Hoppe Water Memorial Scholarship",
-          amount: 1500,
-          renewable: false,
-          deadline: "2026-05-01",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.2 },
-          eligibility: "CO resident, attending public CO university, interested in western water",
-          description: "Supports CO high school students planning to attend public universities with interest in western water issues.",
-          organization: "Denver Foundation",
-          link: "https://denverfoundation.org/scholarships/"
-        },
-        {
-          id: 3,
-          name: "BHW Group Women in STEM Scholarship",
-          amount: 3000,
-          renewable: false,
-          deadline: "2026-04-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 1, gpa: 3.0 },
-          eligibility: "Female high school senior or college student in STEM",
-          description: "Essay-only application. BHW emphasizes passion for problem-solving. Winners may receive internship offers.",
-          organization: "BHW Group",
-          link: "https://thebhwgroup.com/scholarship"
-        },
-        {
-          id: 4,
-          name: "Science Ambassador Scholarship (Cards Against Humanity)",
-          amount: 50000,
-          renewable: true,
-          deadline: "2026-03-15",
-          type: "merit",
-          requirements: { essays: 0, documents: 3, gpa: 3.5 },
-          eligibility: "Female STEM student, full tuition coverage for up to 4 years",
-          description: "FULL TUITION scholarship for women studying science, technology, engineering, or math. Video submission explaining a scientific topic.",
-          organization: "Cards Against Humanity / Science Ambassador",
-          link: "https://www.scienceambassadorscholarship.org/"
-        },
-        {
-          id: 5,
-          name: "Environmental Engineering and Science Foundation (EESF) Scholarships",
-          amount: 2500,
-          renewable: false,
-          deadline: "2026-05-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 3, gpa: 3.2 },
-          eligibility: "Environmental engineering or environmental science majors",
-          description: "Six $2,500 awards for undergraduates. Application opens March 1, 2026.",
-          organization: "Environmental Engineering and Science Foundation",
-          link: "https://www.eesfoundation.org/scholarship/"
-        },
-        {
-          id: 6,
-          name: "Society of Women Engineers (SWE) Scholarships",
-          amount: 5000,
-          renewable: true,
-          deadline: "2026-05-31",
-          type: "merit",
-          requirements: { essays: 1, documents: 3, gpa: 3.0 },
-          eligibility: "Female students in ABET-accredited engineering programs",
-          description: "Over $1.5M awarded annually to women in engineering. Freshman and upperclass scholarships available.",
-          organization: "Society of Women Engineers",
-          link: "https://swe.org/scholarships/"
-        },
-        {
-          id: 7,
-          name: "Call to Action Scholarship Program",
-          amount: 25000,
-          renewable: true,
-          deadline: "2026-03-01",
-          type: "merit-need",
-          requirements: { essays: 2, documents: 3, gpa: 3.0 },
-          eligibility: "CO/UT/NV/ID/IA resident, demonstrated financial need, nonprofit university",
-          description: "Up to $25,000 per year. Includes academic counseling and mentorship throughout college.",
-          organization: "Call to Action Foundation",
-          link: "https://calltoactionfoundation.org/"
-        },
-        {
-          id: 8,
-          name: "CSU Scholarship Application (CSUSA) - Various Awards",
-          amount: 3000,
-          renewable: true,
-          deadline: "2026-02-01",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Colorado resident, first-year CSU students or existing students",
-          description: "Multiple scholarships available ($1,000-$4,000). Includes Honors Program, merit-based, and need-based awards. FAFSA required for need-based.",
-          organization: "Colorado State University",
-          link: "https://colostate.academicworks.com/"
-        },
-        {
-          id: 9,
-          name: "CSU Scott Scholars Program",
-          amount: 8000,
-          renewable: true,
-          deadline: "2026-02-15",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 3, gpa: 3.5 },
-          eligibility: "First-generation, environmental focus, financial need",
-          description: "Competitive full-ride + stipend for exceptional CSU applicants. Emphasizes environmental commitment and leadership.",
-          organization: "Colorado State University",
-          link: "https://colostate.academicworks.com/"
-        },
-        {
-          id: 10,
-          name: "Virginia Heinlein Memorial Scholarship",
-          amount: 4000,
-          renewable: false,
-          deadline: "2026-04-30",
-          type: "merit",
-          requirements: { essays: 2, documents: 2, gpa: 3.2 },
-          eligibility: "Female student pursuing engineering, math, or physical/biological sciences",
-          description: "Honors Virginia Heinlein's legacy in engineering. Includes statement on career goals and STEM essay.",
-          organization: "Virginia Heinlein Foundation",
-          link: "https://heinleinfoundation.org/"
-        },
-        {
-          id: 11,
-          name: "Palantir Women in Technology Scholarship",
-          amount: 7000,
-          renewable: false,
-          deadline: "2026-03-31",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.3 },
-          eligibility: "Female undergraduate in tech/engineering/STEM",
-          description: "10 annual awards. Includes virtual development workshop with Palantir engineers and internship opportunities.",
-          organization: "Palantir Technologies",
-          link: "https://www.palantir.com/careers/scholarships/"
-        },
-        {
-          id: 12,
-          name: "MPOWER Women in STEM Scholarship",
-          amount: 5000,
-          renewable: false,
-          deadline: "2026-08-31",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.2 },
-          eligibility: "Women pursuing STEM degrees with intent to benefit society",
-          description: "International and US students eligible. Open until August 31, 2026. Essay focuses on impact goals.",
-          organization: "MPOWER Financing",
-          link: "https://www.mpowerfinancing.com/scholarships/women-in-stem"
-        },
-        {
-          id: 13,
-          name: "Brown and Caldwell Environmental STEM Scholarships",
-          amount: 5000,
-          renewable: false,
-          deadline: "2026-06-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 3, gpa: 3.0 },
-          eligibility: "STEM students, environmental focus preferred",
-          description: "Environmental consulting firm offering scholarships to exceptional STEM students. Environmental engineering ideal fit.",
-          organization: "Brown and Caldwell",
-          link: "https://www.brownandcaldwell.com/"
-        },
-        {
-          id: 14,
-          name: "Tacuna Systems Women in STEM Scholarship",
-          amount: 1000,
-          renewable: false,
-          deadline: "2026-04-30",
-          type: "merit",
-          requirements: { essays: 1, documents: 1, gpa: 3.0 },
-          eligibility: "Female high school senior or college student in STEM",
-          description: "Two $1,000 awards (one US, one Canada). Focus on women's representation in technical fields.",
-          organization: "Tacuna Systems & ANYLOAD",
-          link: "https://scholarships360.org/scholarships/"
-        },
-        {
-          id: 15,
-          name: "ABC Humane Wildlife Academic Scholarship - Women in STEM",
-          amount: 2500,
-          renewable: false,
-          deadline: "2026-05-01",
-          type: "merit",
-          requirements: { essays: 1, documents: 1, gpa: 3.0 },
-          eligibility: "Female high school senior in STEM, interest in environmental science",
-          description: "Essay on passion for STEM and how it helps preserve biodiversity. Strong fit for environmental engineering focus.",
-          organization: "ABC Wildlife",
-          link: "https://goingmerry.com/blog/women-in-stem-scholarships/"
-        },
-        {
-          id: 16,
-          name: "New England Water Works Association (NEWWA) Scholarship",
-          amount: 3500,
-          renewable: false,
-          deadline: "2026-06-30",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Pursuing water-related environmental engineering",
-          description: "Supports students interested in water supply, treatment, and distribution. Water sustainability focus ideal.",
-          organization: "New England Water Works Association",
-          link: "https://www.newwa.org/"
-        },
-        {
-          id: 17,
-          name: "Excelsior Scholarship Fund (Colorado)",
-          amount: 5000,
-          renewable: false,
-          deadline: "2026-02-28",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 2, gpa: 2.5 },
-          eligibility: "Colorado resident, academically excelling from disadvantaged background",
-          description: "Bridges gap for academically excellent students from economically disadvantaged backgrounds.",
-          organization: "Excelsior Scholarship Fund",
-          link: "https://collegewhale.com/colorado/"
-        },
-        {
-          id: 18,
-          name: "Association of Energy Engineers (AEE) Foundation Scholarships",
-          amount: 4000,
-          renewable: false,
-          deadline: "2026-05-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Environmental/energy engineering, sustainability focus",
-          description: "Supports undergraduates in energy engineering and environmental engineering.",
-          organization: "Association of Energy Engineers",
-          link: "https://www.aeefoundation.org/"
-        },
-        {
-          id: 19,
-          name: "Udall Scholarship (Sustainability & Environmental Leadership)",
-          amount: 7500,
-          renewable: false,
-          deadline: "2026-03-15",
-          type: "merit",
-          requirements: { essays: 2, documents: 3, gpa: 3.5 },
-          eligibility: "Leadership in environmental sustainability, public service commitment",
-          description: "Up to 65 scholarships nationally. Highly competitive. Strong emphasis on leadership and environmental impact.",
-          organization: "Morris K. Udall Foundation",
-          link: "https://www.udall.gov/"
-        },
-        {
-          id: 20,
-          name: "NOAA Environmental Literacy Scholarship",
-          amount: 15000,
-          renewable: true,
-          deadline: "2026-04-01",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 3, gpa: 3.2 },
-          eligibility: "Environmental science/engineering, marine/water focus",
-          description: "Includes internship and research opportunities. Strong commitment to water/environmental career.",
-          organization: "NOAA",
-          link: "https://www.noaa.gov/"
-        },
-        {
-          id: 21,
-          name: "Cal Grant (California State Grant)",
-          amount: 14000,
-          renewable: true,
-          deadline: "2026-03-02",
-          type: "merit-need",
-          requirements: { essays: 0, documents: 1, gpa: 2.0 },
-          eligibility: "California resident, attending Cal Poly, financial need",
-          description: "Major state grant for CA residents. Up to $14,000/year. Does NOT require repayment. Auto-awarded based on FAFSA.",
-          organization: "California Student Aid Commission",
-          link: "https://www.csac.ca.gov/cal-grant"
-        },
-        {
-          id: 22,
-          name: "PG&E Better Together STEM Scholarship",
-          amount: 7500,
-          renewable: false,
-          deadline: "2026-03-12",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "STEM student at California college/university, environmental engineering preferred",
-          description: "PG&E funds STEM scholarships with emphasis on environmental engineering. Multiple awards $1,000-$10,000. Essay-based.",
-          organization: "PG&E",
-          link: "https://www.pge.com/en/about/educational-resources/grants-and-scholarships.html"
-        },
-        {
-          id: 23,
-          name: "Cal Poly President's Scholarship",
-          amount: 8000,
-          renewable: true,
-          deadline: "2026-04-15",
-          type: "merit",
-          requirements: { essays: 0, documents: 2, gpa: 3.7 },
-          eligibility: "Exceptional Cal Poly admitted students, already attending Cal Poly",
-          description: "Competitive merit award for top Cal Poly students. Can cover full tuition. Based on academic excellence and achievement.",
-          organization: "California Polytechnic State University",
-          link: "https://calpoly.academicworks.com/"
-        },
-        {
-          id: 24,
-          name: "Cal Poly College of Engineering Scholarships",
-          amount: 3500,
-          renewable: true,
-          deadline: "2026-05-10",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.2 },
-          eligibility: "Enrolled at Cal Poly, engineering major, completed freshman year",
-          description: "Departmental scholarships through Cal Poly's College of Engineering. Apply via Cal Poly Portal. Multiple awards available.",
-          organization: "Cal Poly College of Engineering",
-          link: "https://ceenve.calpoly.edu/scholarships/"
-        },
-        {
-          id: 25,
-          name: "Environmental Engineering/Science Dept. Scholarships (Cal Poly)",
-          amount: 2000,
-          renewable: true,
-          deadline: "2026-05-10",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Cal Poly student, declared environmental engineering/science major",
-          description: "Department-specific scholarships for CE/ENVE majors. Apply through Cal Poly Portal by May 10. Less competition than general awards.",
-          organization: "Cal Poly CE/ENVE Department",
-          link: "https://ceenve.calpoly.edu/scholarships/"
-        },
-        {
-          id: 26,
-          name: "California Water Environment Federation Scholarships",
-          amount: 3500,
-          renewable: false,
-          deadline: "2026-04-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "California resident, pursuing water/environmental engineering",
-          description: "Supports CA students pursuing water-related environmental engineering. Perfect fit for water sustainability focus.",
-          organization: "California Water Environment Federation",
-          link: "https://www.cwee.org/scholarship"
-        },
-        {
-          id: 27,
-          name: "Virginia Jeanette Drummond Kissane Women in STEM Scholarship",
-          amount: 2000,
-          renewable: false,
-          deadline: "2026-04-30",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Female student in STEM field at California college",
-          description: "Honors women in STEM. Available to female students pursuing STEM degrees at California institutions.",
-          organization: "Virginia Jeanette Drummond Kissane Foundation",
-          link: "https://bold.org/scholarships/"
-        },
-        {
-          id: 28,
-          name: "CEDC/Western States Water Council Scholarship",
-          amount: 2500,
-          renewable: false,
-          deadline: "2026-04-30",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Western state resident (Colorado qualifies), water-focused major",
-          description: "Supports Western state students in water engineering/management. Colorado residents eligible for this regional award.",
-          organization: "Western States Water Council",
-          link: "https://www.westernstateswater.org/"
-        },
-        {
-          id: 29,
-          name: "California Community Foundation STEM Scholarships",
-          amount: 3000,
-          renewable: false,
-          deadline: "2026-05-01",
-          type: "merit-need",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "California resident, STEM student, financial need",
-          description: "California-focused STEM scholarships with emphasis on environmental sciences and engineering fields.",
-          organization: "California Community Foundation",
-          link: "https://www.calfund.org/"
-        },
-        {
-          id: 30,
-          name: "IEEE Women in Engineering Scholarship",
-          amount: 1000,
-          renewable: false,
-          deadline: "2026-05-15",
-          type: "merit",
-          requirements: { essays: 1, documents: 2, gpa: 3.0 },
-          eligibility: "Female engineering student, member or planning to join IEEE",
-          description: "Supports women in engineering including environmental engineering. IEEE membership helpful but not always required.",
-          organization: "IEEE (Institute of Electrical and Electronics Engineers)",
-          link: "https://www.ieee.org/membership/women/"
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const scholarships = [
+            // RECOMMENDED TIER (30 - Best Bets)
+            { id: 1, name: "Colorado Water Conservation Board", amount: 2000, renewable: false, deadline: "2026-04-15", type: "merit", tier: "recommended", category: "water", description: "For students pursuing water sustainability careers", odds: 25, matchScore: 95 },
+            { id: 2, name: "Diane Hoppe Water Memorial", amount: 1500, renewable: false, deadline: "2026-05-01", type: "merit", tier: "recommended", category: "water", description: "Water resource management focus", odds: 30, matchScore: 92 },
+            { id: 3, name: "BHW Group Women in STEM", amount: 3000, renewable: false, deadline: "2026-04-15", type: "merit", tier: "recommended", category: "women-stem", description: "Women pursuing STEM degrees", odds: 15, matchScore: 90 },
+            { id: 4, name: "Science Ambassador (Cards Against Humanity)", amount: 50000, renewable: true, deadline: "2026-03-15", type: "merit", tier: "recommended", category: "stem-video", description: "Women in STEM - submit 3-min video", odds: 5, matchScore: 88 },
+            { id: 5, name: "EESF Scholarships", amount: 2500, renewable: false, deadline: "2026-05-15", type: "merit", tier: "recommended", category: "environmental", description: "Environmental engineering focus", odds: 20, matchScore: 93 },
+            { id: 6, name: "Society of Women Engineers (SWE)", amount: 5000, renewable: true, deadline: "2026-05-31", type: "merit", tier: "recommended", category: "women-stem", description: "Leading women in engineering org", odds: 8, matchScore: 91 },
+            { id: 7, name: "Virginia Heinlein Memorial", amount: 4000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "recommended", category: "environmental", description: "Environmental science students", odds: 18, matchScore: 88 },
+            { id: 8, name: "Palantir Women in Technology", amount: 7000, renewable: false, deadline: "2026-03-31", type: "merit", tier: "recommended", category: "women-stem", description: "Women in tech and engineering", odds: 10, matchScore: 85 },
+            { id: 9, name: "MPOWER Women in STEM", amount: 5000, renewable: false, deadline: "2026-08-31", type: "merit", tier: "recommended", category: "women-stem", description: "Underrepresented women in STEM", odds: 12, matchScore: 89 },
+            { id: 10, name: "Brown and Caldwell Environmental STEM", amount: 5000, renewable: false, deadline: "2026-06-15", type: "merit", tier: "recommended", category: "environmental", description: "Environmental consulting firm scholarship", odds: 22, matchScore: 94 },
+            { id: 11, name: "Tacuna Systems Women in STEM", amount: 1000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "recommended", category: "women-stem", description: "Women in technology fields", odds: 35, matchScore: 87 },
+            { id: 12, name: "ABC Humane Wildlife Women in STEM", amount: 2500, renewable: false, deadline: "2026-05-01", type: "merit", tier: "recommended", category: "environmental", description: "Wildlife and environmental focus", odds: 28, matchScore: 91 },
+            { id: 13, name: "NEWWA Scholarship", amount: 3500, renewable: false, deadline: "2026-06-30", type: "merit", tier: "recommended", category: "water", description: "Water and environmental association", odds: 32, matchScore: 90 },
+            { id: 14, name: "AEE Foundation", amount: 4000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "recommended", category: "energy", description: "Energy engineering and sustainability", odds: 24, matchScore: 86 },
+            { id: 15, name: "Udall Scholarship", amount: 7500, renewable: false, deadline: "2026-03-15", type: "merit", tier: "recommended", category: "environmental", description: "Environmental leadership focus", odds: 7, matchScore: 89 },
+            { id: 16, name: "NOAA Environmental Literacy", amount: 15000, renewable: true, deadline: "2026-04-01", type: "merit", tier: "recommended", category: "environmental", description: "NOAA science and ocean focus", odds: 9, matchScore: 92 },
+            { id: 17, name: "Cal Grant (CA State Grant)", amount: 14000, renewable: true, deadline: "2026-03-02", type: "need", tier: "recommended", category: "state", description: "California state grant - Cal Poly", odds: 40, matchScore: 85 },
+            { id: 18, name: "PG&E Better Together STEM", amount: 7500, renewable: false, deadline: "2026-03-12", type: "merit", tier: "recommended", category: "women-stem", description: "Women in engineering and STEM", odds: 14, matchScore: 87 },
+            { id: 19, name: "Cal Poly President's Scholarship", amount: 8000, renewable: true, deadline: "2026-04-15", type: "merit", tier: "recommended", category: "university", description: "Cal Poly merit scholarship", odds: 16, matchScore: 88 },
+            { id: 20, name: "Cal Poly College of Engineering", amount: 3500, renewable: true, deadline: "2026-05-10", type: "merit", tier: "recommended", category: "university", description: "Cal Poly engineering dept award", odds: 26, matchScore: 90 },
+            { id: 21, name: "Cal Poly CE/ENVE Dept. Scholarships", amount: 2000, renewable: true, deadline: "2026-05-10", type: "merit", tier: "recommended", category: "university", description: "Environmental engineering at Cal Poly", odds: 38, matchScore: 93 },
+            { id: 22, name: "California Water Environment Federation", amount: 3500, renewable: false, deadline: "2026-04-15", type: "merit", tier: "recommended", category: "water", description: "Water quality and treatment focus", odds: 29, matchScore: 91 },
+            { id: 23, name: "Virginia Jeanette Drummond Kissane Women in STEM", amount: 2000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "recommended", category: "women-stem", description: "Women in STEM professions", odds: 31, matchScore: 88 },
+            { id: 24, name: "CEDC/Western States Water Council", amount: 2500, renewable: false, deadline: "2026-04-30", type: "merit", tier: "recommended", category: "water", description: "Water policy and engineering", odds: 27, matchScore: 92 },
+            { id: 25, name: "California Community Foundation STEM", amount: 3000, renewable: false, deadline: "2026-05-01", type: "merit", tier: "recommended", category: "women-stem", description: "California STEM students", odds: 20, matchScore: 86 },
+            { id: 26, name: "IEEE Women in Engineering", amount: 1000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "recommended", category: "women-stem", description: "IEEE professional engineering org", odds: 33, matchScore: 87 },
+            { id: 27, name: "Hyundai Women in STEM", amount: 10000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "recommended", category: "women-stem", description: "Corporate women in STEM award", odds: 11, matchScore: 89 },
+            { id: 28, name: "CSU Environmental Engineering Scholarship", amount: 3000, renewable: true, deadline: "2026-05-01", type: "merit", tier: "recommended", category: "university", description: "CSU departmental award", odds: 36, matchScore: 91 },
+            { id: 29, name: "CU Boulder Women in Engineering", amount: 4500, renewable: true, deadline: "2026-04-30", type: "merit", tier: "recommended", category: "university", description: "CU Boulder women engineers", odds: 23, matchScore: 89 },
+            { id: 30, name: "ASU Barrett Honors Engineering", amount: 6000, renewable: true, deadline: "2026-05-15", type: "merit", tier: "recommended", category: "university", description: "ASU Barrett honors program", odds: 19, matchScore: 87 },
+            
+            // ADDITIONAL OPPORTUNITIES (30+ - Worth Exploring)
+            { id: 31, name: "Irving S. Berman Scholarship", amount: 5000, renewable: false, deadline: "2026-03-23", type: "merit", tier: "additional", category: "environmental", description: "Environmental science and conservation", odds: 17, matchScore: 90 },
+            { id: 32, name: "E-waste Scholarship", amount: 1000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", category: "environmental", description: "Electronics recycling and sustainability", odds: 40, matchScore: 82 },
+            { id: 33, name: "ExtremeTerrain Student Scholarships", amount: 2500, renewable: false, deadline: "2026-06-15", type: "merit", tier: "additional", category: "environmental", description: "Outdoor recreation and land conservation", odds: 34, matchScore: 81 },
+            { id: 34, name: "Ventana Ocean Conservation", amount: 2500, renewable: false, deadline: "2026-06-30", type: "merit", tier: "additional", category: "environmental", description: "Ocean and marine conservation", odds: 21, matchScore: 85 },
+            { id: 35, name: "Society of Exploration Geophysicists (SEG)", amount: 10000, renewable: false, deadline: "2026-03-01", type: "merit", tier: "additional", category: "stem", description: "Geophysics and earth sciences", odds: 13, matchScore: 78 },
+            { id: 36, name: "WSSC Water Commissioners Engineering", amount: 3000, renewable: true, deadline: "2026-03-15", type: "merit", tier: "additional", category: "water", description: "Water utility engineering focus", odds: 28, matchScore: 84 },
+            { id: 37, name: "N.G. Kaul Memorial (NYWEA)", amount: 2000, renewable: false, deadline: "2026-02-28", type: "merit", tier: "additional", category: "water", description: "Water environmental engineering", odds: 25, matchScore: 87 },
+            { id: 38, name: "Jim Anderson Memorial (NYWEA)", amount: 1250, renewable: false, deadline: "2026-04-15", type: "merit", tier: "additional", category: "water", description: "Wastewater treatment engineering", odds: 38, matchScore: 83 },
+            { id: 39, name: "John Lenard Civil Engineering (ASCE)", amount: 5000, renewable: false, deadline: "2026-01-15", type: "merit", tier: "additional", category: "civil", description: "Water supply and environmental engineering", odds: 12, matchScore: 89 },
+            { id: 40, name: "National Hydropower Association Scholarship", amount: 2500, renewable: false, deadline: "2026-02-13", type: "merit", tier: "additional", category: "energy", description: "Renewable hydropower and clean energy", odds: 22, matchScore: 80 },
+            { id: 41, name: "American Solar Energy Society", amount: 3000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", category: "energy", description: "Renewable solar energy focus", odds: 19, matchScore: 79 },
+            { id: 42, name: "ASSP Foundation Academic Scholarships", amount: 2500, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", category: "environmental", description: "Environmental health and safety", odds: 26, matchScore: 81 },
+            { id: 43, name: "NEHA Environmental Health Scholarships", amount: 2000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", category: "environmental", description: "Environmental public health", odds: 32, matchScore: 80 },
+            { id: 44, name: "EREF Scholarships", amount: 3000, renewable: true, deadline: "2026-04-15", type: "merit", tier: "additional", category: "environmental", description: "Waste and circular economy focus", odds: 15, matchScore: 77 },
+            { id: 45, name: "AEE Local Chapter Scholarships", amount: 2000, renewable: false, deadline: "2026-04-26", type: "merit", tier: "additional", category: "energy", description: "Energy engineers association local", odds: 36, matchScore: 82 },
+            { id: 46, name: "IMEG Underrepresented STEM", amount: 10000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", category: "women-stem", description: "Engineering consulting firm award", odds: 14, matchScore: 88 },
+            { id: 47, name: "ACEC Research Institute Scholarships", amount: 5000, renewable: false, deadline: "2026-06-01", type: "merit", tier: "additional", category: "civil", description: "Engineering and land surveying", odds: 18, matchScore: 84 },
+            { id: 48, name: "Colorado Women's Foundation STEM", amount: 4000, renewable: false, deadline: "2026-05-01", type: "merit", tier: "additional", category: "women-stem", description: "Colorado women in STEM fields", odds: 24, matchScore: 91 },
+            { id: 49, name: "Striker Scholarship (Colorado Jewish)", amount: 3000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", category: "state", description: "Jewish women in STEM in Colorado", odds: 45, matchScore: 76 },
+            { id: 50, name: "NCJW Colorado Section", amount: 2500, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", category: "women-stem", description: "Jewish women engineering and STEM", odds: 42, matchScore: 78 },
+            { id: 51, name: "Civitas Foundation (Multi-State)", amount: 5000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", category: "stem", description: "STEM students in CO, TX, NM", odds: 28, matchScore: 80 },
+            { id: 52, name: "AISES BNSF Foundation (Indigenous)", amount: 2000, renewable: false, deadline: "2026-06-01", type: "merit", tier: "additional", category: "diversity", description: "Native American STEM students", odds: 50, matchScore: 65 },
+            { id: 53, name: "Fontana Transport Inc. Scholars", amount: 5000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", category: "stem", description: "First-gen STEM students (underrep)", odds: 31, matchScore: 79 },
+            { id: 54, name: "East Tennessee Foundation E.E. Perry", amount: 10000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", category: "regional", description: "Regional STEM scholarship (TN)", odds: 48, matchScore: 60 },
+            { id: 55, name: "WEF Canham Graduate Studies", amount: 25000, renewable: false, deadline: "2026-02-15", type: "merit", tier: "additional", category: "water", description: "Water environment federation grad", odds: 6, matchScore: 75 },
+            { id: 56, name: "Vista Irrigation District", amount: 3000, renewable: false, deadline: "2026-03-27", type: "merit", tier: "additional", category: "regional", description: "Regional water/engineering (CA)", odds: 44, matchScore: 62 },
+            { id: 57, name: "Vallecitos Water District", amount: 2000, renewable: false, deadline: "2026-03-27", type: "merit", tier: "additional", category: "regional", description: "Water and environmental careers", odds: 41, matchScore: 64 },
+            { id: 58, name: "American Water Works Association", amount: 3500, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", category: "water", description: "Water utility professionals", odds: 27, matchScore: 81 },
+            { id: 59, name: "Boettcher Scholarship (Colorado)", amount: 30000, renewable: true, deadline: "2026-11-01", type: "merit", tier: "additional", category: "state", description: "Colorado full-ride scholarship", odds: 4, matchScore: 86 },
+            { id: 60, name: "Colorado Merit Scholarship", amount: 5000, renewable: true, deadline: "2026-03-01", type: "merit", tier: "additional", category: "state", description: "Colorado resident merit award", odds: 35, matchScore: 89 },
+        ];
+        
+        function getDaysDiff(deadline) {
+            const today = new Date(2026, 2, 13); // March 13, 2026
+            const deadlineDate = new Date(deadline);
+            const diff = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+            return diff;
         }
-      ];
-
-      // Load tracking data from localStorage
-      useEffect(() => {
-        const savedTracking = localStorage.getItem('dakotaScholarshipTracking');
-        const tracking = savedTracking ? JSON.parse(savedTracking) : {};
         
-        const withTracking = scholarshipData.map(s => ({
-          ...s,
-          tracking: tracking[s.id] || {
-            status: 'not-started',
-            started: false,
-            submitted: false,
-            heardBack: false,
-            result: ''
-          }
-        }));
-
-        setLoading(false);
-        setScholarships(withTracking);
-        setFilteredScholarships(withTracking);
-      }, []);
-
-      // Save tracking data to localStorage
-      const updateTracking = (id, updates) => {
-        const updated = scholarships.map(s => 
-          s.id === id ? { ...s, tracking: { ...s.tracking, ...updates } } : s
-        );
-        setScholarships(updated);
-        setFilteredScholarships(updated);
+        function getTierLabel(tier) {
+            if (tier === "recommended") return "🎯 RECOMMENDED";
+            return "🔍 ADDITIONAL";
+        }
         
-        const tracking = {};
-        updated.forEach(s => {
-          tracking[s.id] = s.tracking;
-        });
-        localStorage.setItem('dakotaScholarshipTracking', JSON.stringify(tracking));
-      };
-
-      useEffect(() => {
-        let filtered = scholarships.filter(s => {
-          const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.organization.toLowerCase().includes(searchTerm.toLowerCase());
-          
-          const matchesType = selectedFilters.type === 'all' || s.type === selectedFilters.type;
-          const matchesAmount = s.amount >= selectedFilters.minAmount;
-          const matchesRenewable = selectedFilters.renewable === 'all' || 
-            (selectedFilters.renewable === 'yes' && s.renewable) ||
-            (selectedFilters.renewable === 'no' && !s.renewable);
-          const matchesStatus = selectedFilters.status === 'all' || s.tracking.status === selectedFilters.status;
-
-          return matchesSearch && matchesType && matchesAmount && matchesRenewable && matchesStatus;
-        });
-
-        filtered.sort((a, b) => {
-          if (sortBy === 'deadline') {
-            return new Date(a.deadline) - new Date(b.deadline);
-          } else if (sortBy === 'amount-high') {
-            return b.amount - a.amount;
-          } else if (sortBy === 'amount-low') {
-            return a.amount - b.amount;
-          }
-          return 0;
-        });
-
-        setFilteredScholarships(filtered);
-      }, [searchTerm, selectedFilters, sortBy, scholarships]);
-
-      const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-      };
-
-      const daysUntilDeadline = (dateString) => {
-        const deadline = new Date(dateString);
-        const today = new Date();
-        const diff = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        return diff;
-      };
-
-      const getStatusBadge = (status) => {
-        const statusMap = {
-          'not-started': { bg: 'bg-slate-600/50', text: 'text-slate-300', label: 'Not Started' },
-          'in-progress': { bg: 'bg-yellow-500/20', text: 'text-yellow-300', label: 'In Progress' },
-          'did-not-submit': { bg: 'bg-orange-500/20', text: 'text-orange-300', label: 'Did Not Submit' },
-          'submitted': { bg: 'bg-blue-500/20', text: 'text-blue-300', label: 'Submitted' },
-          'heard-back': { bg: 'bg-purple-500/20', text: 'text-purple-300', label: 'Heard Back' },
-          'won': { bg: 'bg-emerald-500/20', text: 'text-emerald-300', label: 'Won! 🎉' },
-          'rejected': { bg: 'bg-red-500/20', text: 'text-red-300', label: 'Not Selected' },
-          'passed': { bg: 'bg-gray-500/20', text: 'text-gray-300', label: 'Deadline Passed' },
-          'withdrew': { bg: 'bg-indigo-500/20', text: 'text-indigo-300', label: 'Withdrew' }
-        };
-        return statusMap[status] || statusMap['not-started'];
-      };
-
-      const totalValue = filteredScholarships.reduce((sum, s) => sum + s.amount, 0);
-      const submittedCount = scholarships.filter(s => s.tracking.submitted).length;
-      const wonCount = scholarships.filter(s => s.tracking.status === 'won').length;
-
-      return (
-        <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)' }}>
-          {/* Header */}
-          <header className="sticky top-0 z-40 backdrop-blur-md bg-slate-950/80 border-b border-slate-700/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-4xl font-bold text-white tracking-tight">
-                    Dakota's Scholarship Finder
-                  </h1>
-                  <p className="text-slate-300 mt-2">Curated opportunities for environmental engineering + water sustainability</p>
-                </div>
-                <div className="hidden md:block text-right space-y-2">
-                  <div className="text-3xl font-bold text-emerald-400">${totalValue.toLocaleString()}</div>
-                  <div className="text-sm text-slate-400">Available • {submittedCount} submitted • {wonCount} won</div>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* Search & Filters */}
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 mb-12">
-              <div className="space-y-6">
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search scholarships by name, organization, or keyword..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-700/50 border border-slate-600 text-white placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                  />
-                </div>
-
-                {/* Filter Controls */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Type</label>
-                    <select
-                      value={selectedFilters.type}
-                      onChange={(e) => setSelectedFilters({...selectedFilters, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="all">All Types</option>
-                      <option value="merit">Merit-Based</option>
-                      <option value="merit-need">Merit & Need</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Min. Award</label>
-                    <select
-                      value={selectedFilters.minAmount}
-                      onChange={(e) => setSelectedFilters({...selectedFilters, minAmount: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value={0}>Any Amount</option>
-                      <option value={2500}>$2,500+</option>
-                      <option value={5000}>$5,000+</option>
-                      <option value={7500}>$7,500+</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Renewable</label>
-                    <select
-                      value={selectedFilters.renewable}
-                      onChange={(e) => setSelectedFilters({...selectedFilters, renewable: e.target.value})}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="all">All</option>
-                      <option value="yes">Renewable Only</option>
-                      <option value="no">One-Time</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Status</label>
-                    <select
-                      value={selectedFilters.status}
-                      onChange={(e) => setSelectedFilters({...selectedFilters, status: e.target.value})}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="all">All</option>
-                      <option value="not-started">Not Started</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="did-not-submit">Did Not Submit</option>
-                      <option value="submitted">Submitted</option>
-                      <option value="heard-back">Heard Back</option>
-                      <option value="won">Won!</option>
-                      <option value="rejected">Not Selected</option>
-                      <option value="passed">Deadline Passed</option>
-                      <option value="withdrew">Withdrew</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Sort By</label>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="deadline">Deadline</option>
-                      <option value="amount-high">Amount (High)</option>
-                      <option value="amount-low">Amount (Low)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Results Summary */}
-            <div className="mb-8">
-              <p className="text-slate-300">
-                Showing <span className="text-emerald-400 font-semibold">{filteredScholarships.length}</span> scholarships
-              </p>
-            </div>
-
-            {/* Scholarships List */}
-            <div className="space-y-4">
-              {filteredScholarships.map((scholarship) => {
-                const statusInfo = getStatusBadge(scholarship.tracking.status);
-                return (
-                  <div
-                    key={scholarship.id}
-                    className="bg-slate-800/40 border border-slate-700/50 rounded-xl overflow-hidden hover:border-emerald-500/30 hover:bg-slate-800/60 transition-all duration-200 group"
-                  >
-                    <button
-                      onClick={() => setExpandedId(expandedId === scholarship.id ? null : scholarship.id)}
-                      className="w-full p-6 text-left"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
-                            {scholarship.name}
-                          </h3>
-                          <p className="text-slate-400 text-sm mt-1">{scholarship.organization}</p>
-                        </div>
-                        <ChevronDown className={`flex-shrink-0 transition-transform duration-200 ${
-                          expandedId === scholarship.id ? 'rotate-180' : ''
-                        }`} />
-                      </div>
-
-                      {/* Quick Stats */}
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-emerald-400" />
-                          <span className="text-white font-semibold text-sm">${scholarship.amount.toLocaleString()}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-blue-400" />
-                          <span className="text-slate-300 text-sm">{formatDate(scholarship.deadline)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                            scholarship.renewable ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-600/50 text-slate-300'
-                          }`}>
-                            {scholarship.renewable ? 'Renewable' : 'One-Time'}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className={`text-xs font-medium ${
-                            daysUntilDeadline(scholarship.deadline) > 60 ? 'text-emerald-400' :
-                            daysUntilDeadline(scholarship.deadline) > 30 ? 'text-yellow-400' :
-                            daysUntilDeadline(scholarship.deadline) > 0 ? 'text-orange-400' :
-                            'text-red-400'
-                          }`}>
-                            {daysUntilDeadline(scholarship.deadline) > 0 ? daysUntilDeadline(scholarship.deadline) + ' days' : 'PASSED'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap block ${statusInfo.bg} ${statusInfo.text}`}>
-                            {statusInfo.label}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Expanded Details */}
-                    {expandedId === scholarship.id && (
-                      <div className="border-t border-slate-700/50 bg-slate-900/30 p-6 space-y-6 animate-in">
-                        <p className="text-slate-300">{scholarship.description}</p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              Eligibility
-                            </h4>
-                            <p className="text-slate-400 text-sm">{scholarship.eligibility}</p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-                              <ClipboardList className="h-4 w-4" />
-                              Requirements
-                            </h4>
-                            <ul className="text-slate-400 text-sm space-y-1">
-                              {scholarship.requirements.essays > 0 && <li>• {scholarship.requirements.essays} essay(s)</li>}
-                              {scholarship.requirements.documents > 0 && <li>• {scholarship.requirements.documents} documents</li>}
-                              <li>• Minimum {scholarship.requirements.gpa} GPA</li>
-                            </ul>
-                          </div>
-                        </div>
-
-                        {/* Tracking Section */}
-                        <div className="border-t border-slate-700/50 pt-6">
-                          <h4 className="text-sm font-semibold text-slate-300 mb-4">Track Your Progress</h4>
-                          
-                          {/* Quick Status Buttons */}
-                          <div className="mb-6 pb-6 border-b border-slate-700/50">
-                            <p className="text-xs text-slate-400 mb-3">Quick Mark:</p>
-                            <div className="flex flex-wrap gap-2">
-                              <button
-                                onClick={() => updateTracking(scholarship.id, { status: 'passed' })}
-                                className="px-3 py-1 text-xs rounded bg-gray-500/20 text-gray-300 hover:bg-gray-500/40 transition-colors"
-                              >
-                                Deadline Passed
-                              </button>
-                              <button
-                                onClick={() => updateTracking(scholarship.id, { status: 'did-not-submit' })}
-                                className="px-3 py-1 text-xs rounded bg-orange-500/20 text-orange-300 hover:bg-orange-500/40 transition-colors"
-                              >
-                                Did Not Submit
-                              </button>
-                              <button
-                                onClick={() => updateTracking(scholarship.id, { status: 'withdrew' })}
-                                className="px-3 py-1 text-xs rounded bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 transition-colors"
-                              >
-                                Withdrew
-                              </button>
-                              <button
-                                onClick={() => updateTracking(scholarship.id, { status: 'not-started' })}
-                                className="px-3 py-1 text-xs rounded bg-slate-600/50 text-slate-300 hover:bg-slate-600/70 transition-colors"
-                              >
-                                Reset
-                              </button>
+        function getTierColor(tier) {
+            if (tier === "recommended") return "recommended-badge";
+            return "additional-badge";
+        }
+        
+        function getSelectivityTier(matchScore, odds) {
+            if (matchScore >= 88 && odds <= 25) return { label: "Your Best Bet", class: "tier-best", icon: "🟢" };
+            if (matchScore >= 80) return { label: "Worth Applying", class: "tier-medium", icon: "🟡" };
+            return { label: "Reach Opportunity", class: "tier-reach", icon: "🔴" };
+        }
+        
+        function ScholarshipApp() {
+            const [filteredScholarships, setFilteredScholarships] = React.useState(scholarships);
+            const [searchTerm, setSearchTerm] = React.useState("");
+            const [showRecommended, setShowRecommended] = React.useState(true);
+            const [showAdditional, setShowAdditional] = React.useState(true);
+            const [minAmount, setMinAmount] = React.useState(0);
+            const [expandedId, setExpandedId] = React.useState(null);
+            const [tracking, setTracking] = React.useState(() => {
+                const saved = localStorage.getItem("scholarshipTracking");
+                return saved ? JSON.parse(saved) : {};
+            });
+            
+            React.useEffect(() => {
+                localStorage.setItem("scholarshipTracking", JSON.stringify(tracking));
+            }, [tracking]);
+            
+            React.useEffect(() => {
+                let results = scholarships.filter(s => {
+                    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                        s.category.toLowerCase().includes(searchTerm.toLowerCase());
+                    const matchesAmount = s.amount >= minAmount;
+                    const matchesTier = (showRecommended && s.tier === "recommended") || 
+                                       (showAdditional && s.tier === "additional");
+                    return matchesSearch && matchesAmount && matchesTier;
+                });
+                
+                // Sort by days remaining, then by match score
+                results.sort((a, b) => {
+                    const daysA = getDaysDiff(a.deadline);
+                    const daysB = getDaysDiff(b.deadline);
+                    if (daysA > 0 && daysB <= 0) return -1;
+                    if (daysA <= 0 && daysB > 0) return 1;
+                    return b.matchScore - a.matchScore;
+                });
+                
+                setFilteredScholarships(results);
+            }, [searchTerm, minAmount, showRecommended, showAdditional]);
+            
+            const handleStatusChange = (id, field, value) => {
+                setTracking(prev => ({
+                    ...prev,
+                    [id]: { ...prev[id], [field]: value }
+                }));
+            };
+            
+            const handleQuickStatus = (id, status) => {
+                const statusMap = {
+                    "Deadline Passed": { status: "deadline-passed", result: null },
+                    "Did Not Submit": { status: "did-not-submit", result: null },
+                    "Withdrew": { status: "withdrew", result: null },
+                    "Reset": { status: null, result: null }
+                };
+                const newStatus = statusMap[status];
+                setTracking(prev => ({
+                    ...prev,
+                    [id]: { ...prev[id], ...newStatus }
+                }));
+            };
+            
+            const stats = React.useMemo(() => {
+                const submitted = Object.values(tracking).filter(t => t.status === "submitted").length;
+                const won = Object.values(tracking).filter(t => t.result === "won").length;
+                const totalValue = filteredScholarships.reduce((sum, s) => sum + s.amount, 0);
+                return { submitted, won, totalValue };
+            }, [tracking, filteredScholarships]);
+            
+            return (
+                <div className="min-h-screen pb-16 pt-4 px-4 md:px-6">
+                    {/* Header */}
+                    <div className="max-w-7xl mx-auto mb-8 slide-in">
+                        <div className="bg-white rounded-3xl p-8 border border-purple-200 shadow-xl">
+                            <h1 className="text-4xl md:text-5xl font-display text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2">
+                                Dakota's Scholarship Finder
+                            </h1>
+                            <p className="text-gray-600 text-lg mb-6">
+                                30 Recommended + 30 Additional Opportunities | Selectivity Scoring Included
+                            </p>
+                            
+                            {/* Stats Dashboard */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                                    <div className="text-sm text-green-700 font-semibold">Total Value</div>
+                                    <div className="text-2xl font-bold text-green-600 mt-1">${(stats.totalValue / 1000).toFixed(1)}k</div>
+                                </div>
+                                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
+                                    <div className="text-sm text-blue-700 font-semibold">Submitted</div>
+                                    <div className="text-2xl font-bold text-blue-600 mt-1">{stats.submitted}</div>
+                                </div>
+                                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-4 border border-yellow-200">
+                                    <div className="text-sm text-yellow-700 font-semibold">Applied</div>
+                                    <div className="text-2xl font-bold text-yellow-600 mt-1">{filteredScholarships.length}</div>
+                                </div>
+                                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                    <div className="text-sm text-purple-700 font-semibold">Won</div>
+                                    <div className="text-2xl font-bold text-purple-600 mt-1">{stats.won}</div>
+                                </div>
                             </div>
-                          </div>
-
-                          <div className="space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={scholarship.tracking.started}
-                                onChange={(e) => {
-                                  updateTracking(scholarship.id, {
-                                    started: e.target.checked,
-                                    status: e.target.checked ? 'in-progress' : 'not-started'
-                                  });
-                                }}
-                                className="w-5 h-5 rounded border-slate-600 bg-slate-700 cursor-pointer accent-emerald-500"
-                              />
-                              <span className="text-slate-300 text-sm">Started application</span>
-                            </label>
-
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={scholarship.tracking.submitted}
-                                onChange={(e) => {
-                                  updateTracking(scholarship.id, {
-                                    submitted: e.target.checked,
-                                    status: e.target.checked ? 'submitted' : 'in-progress'
-                                  });
-                                }}
-                                className="w-5 h-5 rounded border-slate-600 bg-slate-700 cursor-pointer accent-emerald-500"
-                              />
-                              <span className="text-slate-300 text-sm">Submitted</span>
-                            </label>
-
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={scholarship.tracking.heardBack}
-                                onChange={(e) => {
-                                  updateTracking(scholarship.id, {
-                                    heardBack: e.target.checked,
-                                    status: e.target.checked ? 'heard-back' : 'submitted'
-                                  });
-                                }}
-                                className="w-5 h-5 rounded border-slate-600 bg-slate-700 cursor-pointer accent-emerald-500"
-                              />
-                              <span className="text-slate-300 text-sm">Heard back</span>
-                            </label>
-
-                            <div className="mt-4">
-                              <label className="block text-sm font-medium text-slate-300 mb-2">Final Result</label>
-                              <select
-                                value={scholarship.tracking.result}
-                                onChange={(e) => {
-                                  const result = e.target.value;
-                                  updateTracking(scholarship.id, {
-                                    result: result,
-                                    status: result === 'won' ? 'won' : result === 'rejected' ? 'rejected' : scholarship.tracking.status
-                                  });
-                                }}
-                                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                              >
-                                <option value="">No result yet</option>
-                                <option value="won">Won Award! 🎉</option>
-                                <option value="rejected">Not Selected</option>
-                                <option value="waitlisted">Waitlisted</option>
-                              </select>
-                            </div>
-                          </div>
                         </div>
-
-                        <a
-                          href={scholarship.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
-                        >
-                          Visit Organization <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {filteredScholarships.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-slate-400 text-lg">No scholarships match your criteria. Try adjusting your filters!</p>
-              </div>
-            )}
-          </main>
-
-          {/* Footer */}
-          <footer className="bg-slate-950/50 border-t border-slate-700/50 mt-20 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <p className="text-slate-400 text-sm text-center">
-                Last updated: March 2026 • For Dakota Jackson • Track your progress automatically • Data saves to your device
-              </p>
-            </div>
-          </footer>
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<ScholarshipFinder />);
-  </script>
+                    </div>
+                    
+                    {/* Filters */}
+                    <div className="max-w-7xl mx-auto mb-8 slide-in">
+                        <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-lg space-y-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-3">Search Scholarships</label>
+                                <input
+                                    type="text"
+                                    placeholder="Search by name, category, field..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition"
+                                />
+                            </div>
+                            
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                        Minimum Amount: ${minAmount.toLocaleString()}
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="30000"
+                                        step="1000"
+                                        value={minAmount}
+                                        onChange={(e) => setMinAmount(parseInt(e.target.value))}
+                                        className="w-full"
+                                    />
+                                </div>
+                                
+                                <div className="flex items-center gap-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showRecommended}
+                                            onChange={(e) => setShowRecommended(e.target.checked)}
+                                            className="w-5 h-5 rounded border-gray-300"
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">🎯 Recommended</span>
+                                    </label>
+                                </div>
+                                
+                                <div className="flex items-center gap-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={showAdditional}
+                                            onChange={(e) => setShowAdditional(e.target.checked)}
+                                            className="w-5 h-5 rounded border-gray-300"
+                                        />
+                                        <span className="text-sm font-medium text-gray-700">🔍 Additional</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Scholarships List */}
+                    <div className="max-w-7xl mx-auto">
+                        {filteredScholarships.length === 0 ? (
+                            <div className="text-center py-12 bg-white rounded-2xl">
+                                <p className="text-gray-500 text-lg">No scholarships match your filters.</p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4">
+                                {filteredScholarships.map((scholarship, idx) => {
+                                    const t = tracking[scholarship.id] || {};
+                                    const daysLeft = getDaysDiff(scholarship.deadline);
+                                    const selectivityTier = getSelectivityTier(scholarship.matchScore, scholarship.odds);
+                                    
+                                    return (
+                                        <div
+                                            key={scholarship.id}
+                                            className={`card-gradient rounded-2xl p-6 scholarship-card slide-in`}
+                                            style={{ animationDelay: `${idx * 30}ms` }}
+                                        >
+                                            {/* Header with Tier Badges */}
+                                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                                                <div className="flex-1">
+                                                    <div className="flex flex-wrap gap-2 mb-2">
+                                                        <span className={getTierColor(scholarship.tier)}>
+                                                            {getTierLabel(scholarship.tier)}
+                                                        </span>
+                                                        <span className={`tier-label ${selectivityTier.class}`}>
+                                                            {selectivityTier.icon} {selectivityTier.label}
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="text-xl font-display text-gray-900">{scholarship.name}</h3>
+                                                    <p className="text-sm text-gray-600 mt-1">{scholarship.description}</p>
+                                                </div>
+                                                
+                                                {/* Selectivity Metrics */}
+                                                <div className="md:text-right">
+                                                    <div className="match-score">{scholarship.matchScore}%</div>
+                                                    <div className="text-xs text-gray-500">Match Score</div>
+                                                    <div className="text-xs text-gray-500 mt-2">
+                                                        {scholarship.odds}% odds
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Scholarship Details */}
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
+                                                <div>
+                                                    <span className="text-gray-500">Amount:</span>
+                                                    <div className="font-semibold text-purple-600">${scholarship.amount.toLocaleString()}</div>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Renewable:</span>
+                                                    <div className="font-semibold">{scholarship.renewable ? "✓ Yes" : "✗ No"}</div>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Type:</span>
+                                                    <div className="font-semibold capitalize">{scholarship.type}</div>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Deadline:</span>
+                                                    <div className={`font-semibold ${daysLeft <= 0 ? "deadline-urgent" : daysLeft <= 7 ? "deadline-soon" : ""}`}>
+                                                        {daysLeft <= 0 ? "PASSED" : `${daysLeft}d`}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Deadline Date Full */}
+                                            <div className="mb-4 text-xs text-gray-600">
+                                                📅 {scholarship.deadline} (in {daysLeft} days)
+                                            </div>
+                                            
+                                            {/* Application Tracking */}
+                                            <div className="space-y-3 pt-3 border-t border-gray-200">
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={t.started || false}
+                                                            onChange={(e) => handleStatusChange(scholarship.id, "started", e.target.checked)}
+                                                            className="w-4 h-4"
+                                                        />
+                                                        <span>Started</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={t.status === "submitted"}
+                                                            onChange={(e) => handleStatusChange(scholarship.id, "status", e.target.checked ? "submitted" : null)}
+                                                            className="w-4 h-4"
+                                                        />
+                                                        <span>Submitted</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={t.heard || false}
+                                                            onChange={(e) => handleStatusChange(scholarship.id, "heard", e.target.checked)}
+                                                            className="w-4 h-4"
+                                                        />
+                                                        <span>Heard Back</span>
+                                                    </label>
+                                                    <select
+                                                        value={t.result || ""}
+                                                        onChange={(e) => handleStatusChange(scholarship.id, "result", e.target.value || null)}
+                                                        className="px-2 py-1 rounded border border-gray-300 text-xs"
+                                                    >
+                                                        <option value="">Result...</option>
+                                                        <option value="won">Won</option>
+                                                        <option value="not-selected">Not Selected</option>
+                                                        <option value="waitlisted">Waitlisted</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                {/* Quick Status Buttons */}
+                                                <div className="flex flex-wrap gap-2">
+                                                    {["Deadline Passed", "Did Not Submit", "Withdrew", "Reset"].map(btn => (
+                                                        <button
+                                                            key={btn}
+                                                            onClick={() => handleQuickStatus(scholarship.id, btn)}
+                                                            className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
+                                                        >
+                                                            {btn}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* Legend */}
+                    <div className="max-w-7xl mx-auto mt-12 bg-white rounded-2xl p-6 border border-gray-200">
+                        <h3 className="font-display text-lg text-gray-900 mb-4">Understanding Selectivity Tiers</h3>
+                        <div className="grid md:grid-cols-3 gap-6">
+                            <div className="tier-best rounded-lg p-4">
+                                <div className="font-semibold text-green-900 mb-2">🟢 Your Best Bets (60%+ match)</div>
+                                <p className="text-sm text-green-800">Higher odds, strong match to Dakota's profile. Prioritize these first.</p>
+                            </div>
+                            <div className="tier-medium rounded-lg p-4">
+                                <div className="font-semibold text-amber-900 mb-2">🟡 Worth Applying (40-60% match)</div>
+                                <p className="text-sm text-amber-800">Medium odds, good fit. Apply if time allows.</p>
+                            </div>
+                            <div className="tier-reach rounded-lg p-4">
+                                <div className="font-semibold text-red-900 mb-2">🔴 Reach Opportunities (under 40%)</div>
+                                <p className="text-sm text-red-800">Longer shots but worth trying. Lower time investment first.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        ReactDOM.createRoot(document.getElementById('root')).render(<ScholarshipApp />);
+    </script>
 </body>
 </html>
