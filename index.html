@@ -877,9 +877,9 @@
         }
         
         function getSelectivityTier(matchScore, odds) {
-            if (matchScore >= 88 && odds <= 25) return { label: "Your Best Bet", class: "tier-best", icon: "🟢" };
-            if (matchScore >= 80) return { label: "Worth Applying", class: "tier-medium", icon: "🟡" };
-            return { label: "Reach Opportunity", class: "tier-reach", icon: "🔴" };
+            if (matchScore >= 88 && odds <= 25) return { label: "Your Best Bet", class: "tier-best", icon: "ð¢" };
+            if (matchScore >= 80) return { label: "Worth Applying", class: "tier-medium", icon: "ð¡" };
+            return { label: "Reach Opportunity", class: "tier-reach", icon: "ð´" };
         }
         
         function ScholarshipCard({ scholarship, expanded, onExpand }) {
@@ -903,7 +903,7 @@
                         <div className="flex-1">
                             <div className="flex flex-wrap gap-2 mb-2">
                                 <span className={scholarship.tier === "recommended" ? "recommended-badge" : "additional-badge"}>
-                                    {scholarship.tier === "recommended" ? "🎯 RECOMMENDED" : "🔍 ADDITIONAL"}
+                                    {scholarship.tier === "recommended" ? "ð¯ RECOMMENDED" : "ð ADDITIONAL"}
                                 </span>
                                 <span className={`tier-label ${selectivityTier.class}`}>
                                     {selectivityTier.icon} {selectivityTier.label}
@@ -953,7 +953,7 @@
                         onClick={() => onExpand(scholarship.id)}
                         className={`expand-button ${expanded ? "expanded" : ""} w-full`}
                     >
-                        {expanded ? "Hide Details ▲" : "View Requirements & Link ▼"}
+                        {expanded ? "Hide Details â²" : "View Requirements & Link â¼"}
                     </button>
                     
                     {/* Expanded Details */}
@@ -968,7 +968,7 @@
                                         rel="noopener noreferrer"
                                         className="link-button"
                                     >
-                                        🔗 Open Application
+                                        ð Open Application
                                     </a>
                                 </div>
                             )}
@@ -984,7 +984,7 @@
                                             {scholarship.essayPrompts.length > 0 && (
                                                 <div className="text-xs mt-1 text-gray-600">
                                                     {scholarship.essayPrompts.map((p, i) => (
-                                                        <div key={i} className="ml-2 mt-1">• {p}</div>
+                                                        <div key={i} className="ml-2 mt-1">â¢ {p}</div>
                                                     ))}
                                                 </div>
                                             )}
@@ -1025,7 +1025,7 @@
                                 {scholarship.transcripts && (
                                     <div className="requirement-row">
                                         <div className="requirement-label">Transcript</div>
-                                        <div className="requirement-value">✓ Official transcript required</div>
+                                        <div className="requirement-value">â Official transcript required</div>
                                     </div>
                                 )}
                                 
@@ -1041,7 +1041,7 @@
                                 {scholarship.fafsa && (
                                     <div className="requirement-row">
                                         <div className="requirement-label">FAFSA</div>
-                                        <div className="requirement-value">✓ FAFSA completion required</div>
+                                        <div className="requirement-value">â FAFSA completion required</div>
                                     </div>
                                 )}
                                 
@@ -1128,6 +1128,7 @@
                             <p className="text-gray-500 text-sm">
                                 Click "View Requirements & Link" on any scholarship to see essay count, questions, required documents, and details and apply.
                             </p>
+                            <a href="/scoring.html" target="_blank" rel="noopener noreferrer" style={{display:'inline-flex',alignItems:'center',gap:'6px',fontSize:'.78rem',fontFamily:'monospace',background:'#f5f3ff',border:'1px solid #ddd6fe',color:'#7c3aed',padding:'.3rem .9rem',borderRadius:'100px',textDecoration:'none',marginTop:'8px'}}>📊 How scores &amp; odds are calculated →</a>
                         </div>
                     </div>
                     
@@ -1169,7 +1170,7 @@
                                             onChange={(e) => setShowRecommended(e.target.checked)}
                                             className="w-5 h-5"
                                         />
-                                        <span className="text-sm font-medium text-gray-700">🎯 Recommended (30)</span>
+                                        <span className="text-sm font-medium text-gray-700">ð¯ Recommended (30)</span>
                                     </label>
                                 </div>
                                 
@@ -1181,7 +1182,7 @@
                                             onChange={(e) => setShowAdditional(e.target.checked)}
                                             className="w-5 h-5"
                                         />
-                                        <span className="text-sm font-medium text-gray-700">🔍 Additional (30)</span>
+                                        <span className="text-sm font-medium text-gray-700">ð Additional (30)</span>
                                     </label>
                                 </div>
                             </div>
