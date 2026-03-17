@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scholarship Scoring Methodology — Dakota</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#f7f4ef;--ink:#1a1814;--muted:#6b6760;--accent:#2d6a4f;--accent-light:#d8f3dc;--blue:#1d4e89;--blue-light:#dbeafe;--orange:#b5511a;--orange-light:#fde8d8;--rule:#d9d4cc;--card:#fff;--mono:'DM Mono',monospace}
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px}
+    header{background:var(--ink);color:#fff;padding:3.5rem 2rem 3rem;position:relative;overflow:hidden}
+    header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 20px,rgba(255,255,255,.03) 20px,rgba(255,255,255,.03) 21px)}
+    .header-inner{position:relative;max-width:820px;margin:0 auto}.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.8rem}
+    header h1{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:400;line-height:1.15;margin-bottom:1rem}header h1 em{font-style:italic;color:#a8d5b5}
+    .subtitle{font-size:.95rem;color:rgba(255,255,255,.55);max-width:540px;line-height:1.6}
+    .disclaimer{background:#fff8e7;border-left:4px solid #e6a817;padding:1rem 1.5rem;font-size:.88rem;color:#7a5c10;max-width:820px;margin:2rem auto;border-radius:0 6px 6px 0}.disclaimer strong{color:#5a420a}
+    main{max-width:820px;margin:0 auto;padding:0 2rem 5rem}section{margin-bottom:3.5rem}
+    .section-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+    h2{font-family:'DM Serif Display',serif;font-size:1.75rem;font-weight:400;margin-bottom:1rem;line-height:1.2}p{color:#3d3a35;margin-bottom:1rem;font-size:.97rem}
+    .formula{background:var(--ink);color:#a8d5b5;font-family:var(--mono);font-size:.9rem;padding:1.25rem 1.5rem;border-radius:8px;margin:1.5rem 0;line-height:1.8}
+    .table-wrap{overflow-x:auto;margin:1.5rem 0}table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    thead tr{background:var(--ink);color:#fff}thead th{padding:.75rem 1rem;text-align:left;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+    tbody tr{border-bottom:1px solid var(--rule)}tbody tr:last-child{border-bottom:none}tbody td{padding:.75rem 1rem;vertical-align:top}tbody tr:hover{background:#fafaf8}
+    .weight{font-family:var(--mono);font-weight:500;color:var(--accent)}.num{font-family:var(--mono);font-weight:500}
+    .tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+    .tier-card{background:var(--card);border-radius:10px;padding:1.25rem 1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.06);border-top:4px solid}
+    .tier-card.green{border-color:#2d6a4f}.tier-card.blue{border-color:#1d4e89}.tier-card.orange{border-color:#b5511a}
+    .tier-name{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:.35rem}
+    .tier-badge{display:inline-block;font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .6rem;border-radius:100px;margin-bottom:.75rem}
+    .green .tier-badge{background:var(--accent-light);color:var(--accent)}.blue .tier-badge{background:var(--blue-light);color:var(--blue)}.orange .tier-badge{background:var(--orange-light);color:var(--orange)}
+    .tier-criteria{font-size:.82rem;color:var(--muted);font-family:var(--mono);margin-bottom:.5rem;line-height:1.5}.tier-desc{font-size:.88rem;color:#3d3a35}
+    .steps{counter-reset:step}.step{display:flex;gap:1.25rem;margin-bottom:1.25rem;align-items:flex-start}
+    .step-num{flex-shrink:0;width:36px;height:36px;background:var(--ink);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem;font-weight:500}
+    .step-body{padding-top:.35rem}.step-body strong{display:block;margin-bottom:.2rem;font-size:.97rem}.step-body span{font-size:.9rem;color:#3d3a35}
+    .limit-list{list-style:none;margin:1rem 0}.limit-list li{display:flex;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--rule);font-size:.9rem;color:#3d3a35;align-items:flex-start}
+    .limit-list li:last-child{border-bottom:none}.limit-list li::before{content:'--';color:var(--muted);flex-shrink:0;font-family:var(--mono)}
+    footer{background:var(--ink);color:rgba(255,255,255,.4);text-align:center;padding:2rem;font-size:.8rem;font-family:var(--mono);letter-spacing:.05em}
+    footer a{color:rgba(255,255,255,.6);text-decoration:none}footer a:hover{color:#a8d5b5}
+    .back-bar{background:var(--card);border-bottom:1px solid var(--rule);padding:.75rem 2rem}
+    .back-bar a{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+    .back-bar a:hover{color:var(--accent)}hr{border:none;border-top:1px solid var(--rule);margin:3rem 0}
+  </style>
+</head>
+<body>
+  <div class="back-bar"><a href="https://dakota-scholarships.vercel.app/">← Back to Scholarship Tracker</a></div>
+  <header><div class="header-inner">
+    <div class="eyebrow">Dakota's Scholarship Tracker - Documentation</div>
+    <h1>How Scores &amp; <em>Winning Odds</em> Work</h1>
+    <p class="subtitle">A plain-English breakdown of the methodology behind every Match Score, Winning Odds estimate, and Tier Badge in the tracker.</p>
+  </div></header>
+  <div class="disclaimer"><strong>Important:</strong> All scores and odds are educated estimates based on publicly available data and profile analysis, not verified acceptance rate data. Always confirm eligibility and deadlines directly with each organization.</div>
+  <main>
+    <section>
+      <div class="section-label">Section 01</div><h2>Match Score (0-100%)</h2>
+      <p>The Match Score reflects how well Dakota's profile aligns with each scholarship's stated criteria, evaluated across five weighted dimensions:</p>
+      <div class="table-wrap"><table><thead><tr><th>Dimension</th><th>Weight</th><th>What's Evaluated</th></tr></thead><tbody>
+        <tr><td>Field of Study Alignment</td><td><span class="weight">30%</span></td><td>How closely the scholarship focus matches Environmental Engineering / Water Sustainability</td></tr>
+        <tr><td>Academic Profile</td><td><span class="weight">25%</span></td><td>GPA, IB Diploma candidacy, and test scores relative to typical award recipients</td></tr>
+        <tr><td>Demographic / Eligibility Fit</td><td><span class="weight">20%</span></td><td>Whether Dakota meets specific criteria: women in STEM, Colorado resident, Native heritage, etc.</td></tr>
+        <tr><td>Extracurricular and Leadership</td><td><span class="weight">15%</span></td><td>How athletic achievements, volunteer work, and leadership roles align with stated criteria</td></tr>
+        <tr><td>School Specificity</td><td><span class="weight">10%</span></td><td>Bonus for scholarships tied to schools where Dakota is already accepted (Cal Poly, etc.)</td></tr>
+      </tbody></table></div>
+      <p>Scores reflect application strength before essays and recommendations -- those are the multiplier you control.</p>
+    </section>
+    <hr/>
+    <section>
+      <div class="section-label">Section 02</div><h2>Winning Odds (%)</h2>
+      <p>Winning Odds are estimated using a three-factor formula:</p>
+      <div class="formula">Winning Odds = (Awards Per Year / Estimated Applicant Pool) x Profile Strength Multiplier</div>
+      <p><strong>Awards Per Year</strong> -- sourced from each org's published data or estimated from historical patterns.</p>
+      <p><strong>Estimated Applicant Pool</strong> -- based on scope (national vs. regional vs. school-specific) and eligibility criteria.</p>
+      <p><strong>Profile Strength Multiplier</strong> -- adjusts raw odds based on Match Score:</p>
+      <div class="table-wrap"><table><thead><tr><th>Match Score</th><th>Multiplier</th><th>Effect</th></tr></thead><tbody>
+        <tr><td><span class="num">90-100%</span></td><td><span class="weight">1.5x</span></td><td>Strong boost -- excellent fit</td></tr>
+        <tr><td><span class="num">80-89%</span></td><td><span class="weight">1.2x</span></td><td>Moderate boost -- good fit</td></tr>
+        <tr><td><span class="num">70-79%</span></td><td><span class="weight">1.0x</span></td><td>No adjustment -- average fit</td></tr>
+        <tr><td><span class="num">60-69%</span></td><td><span class="weight">0.8x</span></td><td>Slight reduction -- partial fit</td></tr>
+        <tr><td><span class="num">Below 60%</span></td><td><span class="weight">0.6x</span></td><td>Significant reduction -- weak fit</td></tr>
+      </tbody></table></div>
+    </section>
+    <hr/>
+    <section>
+      <div class="section-label">Section 03</div><h2>Tier Badges</h2>
+      <p>Tier badges are assigned based on the combined Match Score and Winning Odds:</p>
+      <div class="tier-grid">
+        <div class="tier-card green"><div class="tier-badge">Your Best Bet</div><div class="tier-name">High Priority</div><div class="tier-criteria">Match 85%+ AND Odds 12%+</div><div class="tier-desc">Strong fit + realistic chance. Apply to all of these first.</div></div>
+        <div class="tier-card blue"><div class="tier-badge">Worth Applying</div><div class="tier-name">Good Value</div><div class="tier-criteria">Match 70-84% OR Odds 6-11%</div><div class="tier-desc">Good fit but more competitive. Worth the effort if essays overlap.</div></div>
+        <div class="tier-card orange"><div class="tier-badge">Reach Opportunity</div><div class="tier-name">Long Shot</div><div class="tier-criteria">Match under 70% OR Odds under 6%</div><div class="tier-desc">Lower odds but high value if awarded. Apply selectively.</div></div>
+      </div>
+    </section>
+    <hr/>
+    <section>
+      <div class="section-label">Section 04</div><h2>How to Use This in Practice</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Start with Your Best Bets</strong><span>Highest ROI -- strong fit and realistic odds. Apply to all of these first.</span></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Work through Worth Applying</strong><span>More competition but Dakota's profile is still competitive. Prioritize ones with essay overlap.</span></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Be selective with Reach Opportunities</strong><span>Apply only when the essay can be repurposed or the award size justifies the extra work.</span></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Sort by Deadline</strong><span>Use the Priority Queue view in the tracker, sorted by deadline, to stay ahead of cutoffs.</span></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Update Status as you go</strong><span>Mark each scholarship: Not Started, In Progress, Applied, Awarded, or Rejected.</span></div></div>
+      </div>
+    </section>
+    <hr/>
+    <section>
+      <div class="section-label">Section 05</div><h2>Assumptions and Limitations</h2>
+      <ul class="limit-list">
+        <li>No scholarship org publishes true acceptance rates. All odds are modeled estimates, not verified data.</li>
+        <li>Scores reflect Dakota's profile as of early 2026. Re-evaluate as new achievements are added.</li>
+        <li>Essays and recommendations matter enormously. A strong essay can significantly outperform the estimated odds.</li>
+        <li>Deadlines shift annually. Always verify on the official website before submitting.</li>
+        <li>Regional scholarships may have conservative odds estimates -- local pool sizes are harder to verify.</li>
+        <li>Scores reflect profile fit only and do not account for the quality of competing applicants in any given year.</li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <p>Dakota's Scholarship Tracker - Scoring Methodology - March 2026</p>
+    <p style="margin-top:.5rem"><a href="https://dakota-scholarships.vercel.app/">Return to the Tracker</a></p>
+  </footer>
+</body>
+</html>
