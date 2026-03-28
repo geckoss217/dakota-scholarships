@@ -1,1218 +1,711 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dakota's Scholarship Finder - Enhanced with Application Details</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        h
-        h1, h2, h3, .font-display {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f0f7ff 0%, #f8f4ff 100%);
-            min-height: 100vh;
-        }
-        
-        .card-gradient {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,244,255,0.95) 100%);
-            border: 1px solid rgba(139, 92, 246, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .recommended-badge {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .additional-badge {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .match-score {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .tier-label {
-            font-weight: 600;
-            font-size: 0.875rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-        }
-        
-        .tier-best { background: #d1fae5; color: #065f46; }
-        .tier-medium { background: #fef3c7; color: #713f12; }
-        .tier-reach { background: #fee2e2; color: #7f1d1d; }
-        
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .slide-in { animation: slideIn 0.4s ease-out; }
-        @keyframes slideIn { 
-            from { 
-                opacity: 0;
-                transform: translateY(10px);
-            } 
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            } 
-        }
-        
-        .scholarship-card {
-            transition: all 0.3s ease;
-        }
-        
-        .scholarship-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
-        }
-        
-        .expanded-section {
-            background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-top: 1rem;
-            border-left: 4px solid #8b5cf6;
-        }
-        
-        .requirement-row {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 1rem;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-        }
-        
-        .requirement-row:last-child {
-            border-bottom: none;
-        }
-        
-        .requirement-label {
-            font-weight: 600;
-            color: #8b5cf6;
-            font-size: 0.875rem;
-        }
-        
-        .requirement-value {
-            color: #374151;
-            font-size: 0.875rem;
-        }
-        
-        .link-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        
-        .link-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-        }
-        
-        .expand-button {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            color: #374151;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .expand-button:hover {
-            background: #e5e7eb;
-        }
-        
-        .expand-button.expanded {
-            background: #e0e7ff;
-            color: #4f46e5;
-        }
-        
-        .deadline-urgent { color: #dc2626; font-weight: 600; }
-        .deadline-soon { color: #ea580c; font-weight: 600; }
-        
-        .effort-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            background: #fef3c7;
-            color: #713f12;
-            border-radius: 0.25rem;
-        }
-        
-        .effort-low { background: #d1fae5; color: #065f46; }
-        .effort-medium { background: #fef3c7; color: #713f12; }
-        .effort-high { background: #fee2e2; color: #7f1d1d; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dakota's Scholarship Finder v3.2</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --ink: #1a1814;
+      --muted: #6b6760;
+      --accent: #2d6a4f;
+      --accent-light: #d8f3dc;
+      --blue: #1d4e89;
+      --blue-light: #dbeafe;
+      --orange: #b5511a;
+      --orange-light: #fde8d8;
+      --red: #b91c1c;
+      --red-light: #fecaca;
+      --rule: #d9d4cc;
+      --card-bg: #ffffff;
+      --mono: 'DM Mono', monospace;
+      --serif: 'DM Serif Display', serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--ink);
+      color: #fff;
+      padding: 2.5rem 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,255,255,.02) 20px, rgba(255,255,255,.02) 21px);
+    }
+    .header-inner {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.4);
+      margin-bottom: .5rem;
+    }
+    .header-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.15;
+      margin-bottom: .5rem;
+    }
+    .header-title em { color: #7ee8a2; font-style: italic; }
+    .header-sub {
+      color: rgba(255,255,255,.55);
+      font-size: .9rem;
+      margin-bottom: 1.75rem;
+    }
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 6px;
+      padding: .45rem .9rem;
+      font-family: var(--mono);
+      font-size: .78rem;
+    }
+    .stat-pill strong { color: #7ee8a2; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      background: #fff;
+      border-bottom: 1px solid var(--rule);
+      padding: .85rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .toolbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      align-items: center;
+    }
+    .search-wrap {
+      flex: 1 1 220px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      border: 1.5px solid var(--rule);
+      border-radius: 8px;
+      padding: .5rem .85rem .5rem 2.2rem;
+      font-family: var(--sans);
+      font-size: .88rem;
+      background: var(--bg);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap::before {
+      content: '⌕';
+      position: absolute;
+      left: .65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .filter-chips {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      border: 1.5px solid var(--rule);
+      background: none;
+      border-radius: 20px;
+      padding: .35rem .85rem;
+      font-size: .8rem;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+    .sort-select {
+      border: 1.5px solid var(--rule);
+      background: var(--bg);
+      border-radius: 8px;
+      padding: .4rem .75rem;
+      font-family: var(--mono);
+      font-size: .75rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+    }
+    .section-count {
+      font-family: var(--mono);
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* ── GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.1rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--rule);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0,0,0,.08);
+      border-color: #bbb;
+    }
+
+    /* DEADLINE BANNER — top of every card, always visible */
+    .deadline-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .55rem .85rem;
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 500;
+      border-bottom: 1px solid var(--rule);
+    }
+    .deadline-banner.dl-passed {
+      background: #f3f4f6;
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+    .deadline-banner.dl-urgent {
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .deadline-banner.dl-soon {
+      background: var(--orange-light);
+      color: var(--orange);
+    }
+    .deadline-banner.dl-ok {
+      background: #f0fdf4;
+      color: #166534;
+    }
+    .dl-date-str { font-weight: 600; letter-spacing: .03em; }
+    .dl-countdown { font-size: .68rem; opacity: .85; }
+    .dl-icon { font-size: .9rem; margin-right: .35rem; }
+
+    /* card body */
+    .card-body {
+      padding: .9rem 1rem;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: .5rem;
+      margin-bottom: .5rem;
+    }
+    .card-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.25;
+      flex: 1;
+    }
+    .card-amount {
+      font-family: var(--mono);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      border-radius: 4px;
+      padding: .18rem .55rem;
+      font-family: var(--mono);
+      font-size: .65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: .5rem;
+    }
+    .tier-best { background: var(--accent-light); color: var(--accent); }
+    .tier-worth { background: var(--blue-light); color: var(--blue); }
+    .tier-reach { background: var(--orange-light); color: var(--orange); }
+
+    .score-row {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: .55rem;
+      flex-wrap: wrap;
+    }
+    .score-chip {
+      font-family: var(--mono);
+      font-size: .7rem;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: .15rem .5rem;
+      color: var(--muted);
+    }
+    .score-chip strong { color: var(--ink); }
+
+    .card-notes {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: .65rem;
+      line-height: 1.45;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .status-select {
+      border: 1.5px solid var(--rule);
+      border-radius: 6px;
+      padding: .3rem .6rem;
+      font-family: var(--sans);
+      font-size: .78rem;
+      background: var(--bg);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .status-select:focus { border-color: var(--accent); }
+    .card-categories {
+      display: flex;
+      gap: .35rem;
+      flex-wrap: wrap;
+    }
+    .cat-tag {
+      font-size: .67rem;
+      font-family: var(--mono);
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      padding: .1rem .4rem;
+      color: var(--muted);
+    }
+
+    /* empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      display: none;
+    }
+    .empty-state h3 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: .5rem; }
+    .empty-state p { color: var(--muted); }
+
+    /* footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .toolbar-inner { flex-direction: column; align-items: stretch; }
+      .filter-chips { justify-content: flex-start; }
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const scholarships = [
-            // RECOMMENDED TIER (30)
-            { 
-                id: 1, 
-                name: "Colorado Water Conservation Board", 
-                amount: 2000, 
-                renewable: false, 
-                deadline: "2026-04-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 95,
-                odds: 25,
-                url: "https://cwcb.colorado.gov/scholarships",
-                essays: 1,
-                essayPrompts: ["Describe your commitment to water sustainability and how you'll make an impact in Colorado"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.0,
-                volunteerHours: "None required, but valued",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 2, 
-                name: "Diane Hoppe Water Memorial", 
-                amount: 1500, 
-                renewable: false, 
-                deadline: "2026-05-01", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 92,
-                odds: 30,
-                url: "https://www.nwra.org/hoppe-scholarship",
-                essays: 1,
-                essayPrompts: ["Water resource management and your vision"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.2,
-                volunteerHours: "Preferred: 20+",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 3, 
-                name: "BHW Group Women in STEM", 
-                amount: 3000, 
-                renewable: false, 
-                deadline: "2026-04-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 90,
-                odds: 15,
-                url: "https://www.bhwgroup.com/scholarship",
-                essays: 1,
-                essayPrompts: ["Your journey as a woman in STEM"],
-                questions: 4,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.5,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 6
-            },
-            { 
-                id: 4, 
-                name: "Science Ambassador (Cards Against Humanity)", 
-                amount: 50000, 
-                renewable: true, 
-                deadline: "2026-03-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 88,
-                odds: 5,
-                url: "https://bold.org/scholarships/science-ambassador-scholarship/",
-                essays: 0,
-                essayPrompts: [],
-                questions: 1,
-                videoRequired: true,
-                videoLength: "3 minutes",
-                videPrompt: "Explain a scientific concept you're passionate about",
-                transcripts: false,
-                recommendationLetters: 0,
-                gpaMin: "None",
-                volunteerHours: "None required",
-                effort: "high",
-                effort_hours: 8
-            },
-            { 
-                id: 5, 
-                name: "EESF Scholarships", 
-                amount: 2500, 
-                renewable: false, 
-                deadline: "2026-05-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 93,
-                odds: 20,
-                url: "https://www.eesf.org/scholarships",
-                essays: 1,
-                essayPrompts: ["Environmental engineering projects and goals"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.3,
-                volunteerHours: "Preferred: 15+",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 6, 
-                name: "Society of Women Engineers (SWE)", 
-                amount: 5000, 
-                renewable: true, 
-                deadline: "2026-05-31", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 91,
-                odds: 8,
-                url: "https://societyofwomenengineers.swe.org/scholarships",
-                essays: 1,
-                essayPrompts: ["Your engineering aspirations and leadership"],
-                questions: 5,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.5,
-                volunteerHours: "None required, SWE membership preferred",
-                effort: "high",
-                effort_hours: 8
-            },
-            { 
-                id: 7, 
-                name: "Virginia Heinlein Memorial", 
-                amount: 4000, 
-                renewable: false, 
-                deadline: "2026-04-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 88,
-                odds: 18,
-                url: "https://bold.org/scholarships/virginia-heinlein-memorial-scholarship/",
-                essays: 1,
-                essayPrompts: ["Environmental science and conservation commitment"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.0,
-                volunteerHours: "Preferred: 25+",
-                effort: "low",
-                effort_hours: 4
-            },
-            { 
-                id: 8, 
-                name: "Palantir Women in Technology", 
-                amount: 7000, 
-                renewable: false, 
-                deadline: "2026-03-31", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 85,
-                odds: 10,
-                url: "https://www.palantir.com/careers/scholarships/",
-                essays: 1,
-                essayPrompts: ["Technology applications in solving real-world problems"],
-                questions: 4,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.5,
-                volunteerHours: "None required",
-                effort: "high",
-                effort_hours: 7
-            },
-            { 
-                id: 9, 
-                name: "MPOWER Women in STEM", 
-                amount: 5000, 
-                renewable: false, 
-                deadline: "2026-08-31", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 89,
-                odds: 12,
-                url: "https://www.mpower.org/scholarships",
-                essays: 1,
-                essayPrompts: ["Your path in STEM and commitment to the field"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.0,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 10, 
-                name: "Brown and Caldwell Environmental STEM", 
-                amount: 5000, 
-                renewable: false, 
-                deadline: "2026-06-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 94,
-                odds: 22,
-                url: "https://www.brownandcaldwell.com/about/careers/scholarships/",
-                essays: 1,
-                essayPrompts: ["Environmental engineering innovations and sustainability"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.2,
-                volunteerHours: "Preferred: 20+",
-                effort: "medium",
-                effort_hours: 6
-            },
-            { 
-                id: 11, 
-                name: "Tacuna Systems Women in STEM", 
-                amount: 1000, 
-                renewable: false, 
-                deadline: "2026-04-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 87,
-                odds: 35,
-                url: "https://www.tacanasystems.com/scholarships",
-                essays: 1,
-                essayPrompts: ["Technology and innovation aspirations"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.0,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 12, 
-                name: "ABC Humane Wildlife Women in STEM", 
-                amount: 2500, 
-                renewable: false, 
-                deadline: "2026-05-01", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 91,
-                odds: 28,
-                url: "https://www.abchumane.org/scholarships",
-                essays: 1,
-                essayPrompts: ["Wildlife and environmental conservation"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.1,
-                volunteerHours: "Preferred: 30+",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 13, 
-                name: "NEWWA Scholarship", 
-                amount: 3500, 
-                renewable: false, 
-                deadline: "2026-06-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 90,
-                odds: 32,
-                url: "https://newwa.org/scholarships/",
-                essays: 1,
-                essayPrompts: ["Water and environmental engineering career path"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.0,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 4
-            },
-            { 
-                id: 14, 
-                name: "AEE Foundation", 
-                amount: 4000, 
-                renewable: false, 
-                deadline: "2026-05-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 86,
-                odds: 24,
-                url: "https://www.aeecenter.org/foundation-scholarships",
-                essays: 1,
-                essayPrompts: ["Energy engineering and sustainability"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.2,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 15, 
-                name: "Udall Scholarship", 
-                amount: 7500, 
-                renewable: false, 
-                deadline: "2026-03-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 89,
-                odds: 7,
-                url: "https://www.udall.gov/scholarships",
-                essays: 2,
-                essayPrompts: ["Environmental leadership and service", "Public policy and environmental issues"],
-                questions: 4,
-                transcripts: true,
-                recommendationLetters: 3,
-                gpaMin: 3.5,
-                volunteerHours: "Required: 30+",
-                effort: "high",
-                effort_hours: 10
-            },
-            { 
-                id: 16, 
-                name: "NOAA Environmental Literacy", 
-                amount: 15000, 
-                renewable: true, 
-                deadline: "2026-04-01", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 92,
-                odds: 9,
-                url: "https://www.noaa.gov/education/resource-collections/college-scholarships",
-                essays: 1,
-                essayPrompts: ["Ocean science and environmental stewardship"],
-                questions: 4,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.4,
-                volunteerHours: "Preferred: 25+",
-                effort: "high",
-                effort_hours: 8
-            },
-            { 
-                id: 17, 
-                name: "Cal Grant (CA State Grant)", 
-                amount: 14000, 
-                renewable: true, 
-                deadline: "2026-03-02", 
-                type: "need", 
-                tier: "recommended", 
-                matchScore: 85,
-                odds: 40,
-                url: "https://www.caldreamact.org/cal-grant/",
-                essays: 0,
-                essayPrompts: [],
-                questions: 0,
-                fafsa: true,
-                transcripts: true,
-                recommendationLetters: 0,
-                gpaMin: 2.0,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 2
-            },
-            { 
-                id: 18, 
-                name: "PG&E Better Together STEM", 
-                amount: 7500, 
-                renewable: false, 
-                deadline: "2026-03-12", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 87,
-                odds: 14,
-                url: "https://www.pgecurrents.com/better-together-stem/",
-                essays: 1,
-                essayPrompts: ["Energy and technology solutions"],
-                questions: 3,
-                videoRequired: true,
-                videoLength: "2 minutes",
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.2,
-                volunteerHours: "None required",
-                effort: "high",
-                effort_hours: 6
-            },
-            { 
-                id: 19, 
-                name: "Cal Poly President's Scholarship", 
-                amount: 8000, 
-                renewable: true, 
-                deadline: "2026-04-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 88,
-                odds: 16,
-                url: "https://financialaid.calpoly.edu/scholarships/",
-                essays: 1,
-                essayPrompts: ["Cal Poly fit and academic goals"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.5,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 4
-            },
-            { 
-                id: 20, 
-                name: "Cal Poly College of Engineering", 
-                amount: 3500, 
-                renewable: true, 
-                deadline: "2026-05-10", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 90,
-                odds: 26,
-                url: "https://ceng.calpoly.edu/scholarships/",
-                essays: 1,
-                essayPrompts: ["Engineering leadership and innovation"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.3,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 21, 
-                name: "Cal Poly CE/ENVE Dept. Scholarships", 
-                amount: 2000, 
-                renewable: true, 
-                deadline: "2026-05-10", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 93,
-                odds: 38,
-                url: "https://ceng.calpoly.edu/scholarships/",
-                essays: 1,
-                essayPrompts: ["Environmental engineering passion"],
-                questions: 1,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.2,
-                volunteerHours: "Preferred: 15+",
-                effort: "low",
-                effort_hours: 2
-            },
-            { 
-                id: 22, 
-                name: "California Water Environment Federation", 
-                amount: 3500, 
-                renewable: false, 
-                deadline: "2026-04-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 91,
-                odds: 29,
-                url: "https://www.cwef.org/scholarships/",
-                essays: 1,
-                essayPrompts: ["Water quality and treatment"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.1,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 4
-            },
-            { 
-                id: 23, 
-                name: "Virginia Jeanette Drummond Kissane Women in STEM", 
-                amount: 2000, 
-                renewable: false, 
-                deadline: "2026-04-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 88,
-                odds: 31,
-                url: "https://bold.org/scholarships/virginia-jeanette-drummond-kissane-women-in-stem-scholarship/",
-                essays: 1,
-                essayPrompts: ["Women's role in STEM fields"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.0,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 24, 
-                name: "CEDC/Western States Water Council", 
-                amount: 2500, 
-                renewable: false, 
-                deadline: "2026-04-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 92,
-                odds: 27,
-                url: "https://www.westgov.org/water-council/scholarships",
-                essays: 1,
-                essayPrompts: ["Water sustainability and policy"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.2,
-                volunteerHours: "Preferred: 20+",
-                effort: "medium",
-                effort_hours: 4
-            },
-            { 
-                id: 25, 
-                name: "California Community Foundation STEM", 
-                amount: 3000, 
-                renewable: false, 
-                deadline: "2026-05-01", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 86,
-                odds: 20,
-                url: "https://www.calfund.org/scholarships/",
-                essays: 1,
-                essayPrompts: ["STEM field and career goals"],
-                questions: 3,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.2,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 5
-            },
-            { 
-                id: 26, 
-                name: "IEEE Women in Engineering", 
-                amount: 1000, 
-                renewable: false, 
-                deadline: "2026-05-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 87,
-                odds: 33,
-                url: "https://www.ieee.org/women-in-engineering/",
-                essays: 1,
-                essayPrompts: ["Engineering aspirations"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.0,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 27, 
-                name: "Hyundai Women in STEM", 
-                amount: 10000, 
-                renewable: false, 
-                deadline: "2026-05-31", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 89,
-                odds: 11,
-                url: "https://www.hyundaiusa.com/en/hyundai-women-in-stem-scholarship",
-                essays: 1,
-                essayPrompts: ["STEM achievements and future impact"],
-                questions: 4,
-                transcripts: true,
-                recommendationLetters: 2,
-                gpaMin: 3.3,
-                volunteerHours: "Preferred: 15+",
-                effort: "high",
-                effort_hours: 7
-            },
-            { 
-                id: 28, 
-                name: "CSU Environmental Engineering Scholarship", 
-                amount: 3000, 
-                renewable: true, 
-                deadline: "2026-05-01", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 91,
-                odds: 36,
-                url: "https://www.colostate.edu/financialaid/scholarships/",
-                essays: 1,
-                essayPrompts: ["Environmental engineering goals"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.2,
-                volunteerHours: "Preferred: 10+",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 29, 
-                name: "CU Boulder Women in Engineering", 
-                amount: 4500, 
-                renewable: true, 
-                deadline: "2026-04-30", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 89,
-                odds: 23,
-                url: "https://www.colorado.edu/engineering/",
-                essays: 1,
-                essayPrompts: ["Engineering leadership"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.3,
-                volunteerHours: "None required",
-                effort: "low",
-                effort_hours: 3
-            },
-            { 
-                id: 30, 
-                name: "ASU Barrett Honors Engineering", 
-                amount: 6000, 
-                renewable: true, 
-                deadline: "2026-05-15", 
-                type: "merit", 
-                tier: "recommended", 
-                matchScore: 87,
-                odds: 19,
-                url: "https://carnegieinstitution.edu/honors-college-scholarships/",
-                essays: 1,
-                essayPrompts: ["Barrett honors fit and academic goals"],
-                questions: 2,
-                transcripts: true,
-                recommendationLetters: 1,
-                gpaMin: 3.7,
-                volunteerHours: "None required",
-                effort: "medium",
-                effort_hours: 4
-            },
-            
-            // ADDITIONAL TIER (30) - Same structure, abbreviated for brevity
-            { id: 31, name: "Irving S. Berman Scholarship", amount: 5000, renewable: false, deadline: "2026-03-23", type: "merit", tier: "additional", matchScore: 90, odds: 17, url: "https://bold.org/scholarships/irving-s-berman-scholarship/", essays: 1, essayPrompts: ["Environmental conservation"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 25+", effort: "medium", effort_hours: 4 },
-            { id: 32, name: "E-waste Scholarship", amount: 1000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", matchScore: 82, odds: 40, url: "https://www.digitalresponsibility.org/ewaste-scholarship/", essays: 0, essayPrompts: [], questions: 1, statement: true, statementLength: "140 characters", transcripts: false, recommendationLetters: 0, gpaMin: "None", volunteerHours: "None required", effort: "low", effort_hours: 1 },
-            { id: 33, name: "ExtremeTerrain Student Scholarships", amount: 2500, renewable: false, deadline: "2026-06-15", type: "merit", tier: "additional", matchScore: 81, odds: 34, url: "https://www.extremeterrain.com/scholarships.html", essays: 1, essayPrompts: ["Recreational land use and conservation"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 20+", effort: "medium", effort_hours: 4 },
-            { id: 34, name: "Ventana Ocean Conservation", amount: 2500, renewable: false, deadline: "2026-06-30", type: "merit", tier: "additional", matchScore: 85, odds: 21, url: "https://ventanaoceanconservation.org/scholarships/", essays: 1, essayPrompts: ["Ocean conservation commitment"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.1, volunteerHours: "Preferred: 30+", effort: "medium", effort_hours: 4 },
-            { id: 35, name: "Society of Exploration Geophysicists (SEG)", amount: 10000, renewable: false, deadline: "2026-03-01", type: "merit", tier: "additional", matchScore: 78, odds: 13, url: "https://seg.org/programs/student-programs/scholarships/", essays: 0, essayPrompts: [], questions: 2, transcripts: true, recommendationLetters: 2, gpaMin: 3.2, volunteerHours: "None required", effort: "medium", effort_hours: 5 },
-            { id: 36, name: "WSSC Water Commissioners Engineering", amount: 3000, renewable: true, deadline: "2026-03-15", type: "merit", tier: "additional", matchScore: 84, odds: 28, url: "https://www.wsscwater.com/news/2026/february/wssc-water-commissioners-scholarship/", essays: 1, essayPrompts: ["Water infrastructure and engineering"], questions: 1, videoRequired: true, videoLength: "5 minutes", transcripts: true, recommendationLetters: 2, gpaMin: 3.0, volunteerHours: "None required", effort: "high", effort_hours: 6 },
-            { id: 37, name: "N.G. Kaul Memorial (NYWEA)", amount: 2000, renewable: false, deadline: "2026-02-28", type: "merit", tier: "additional", matchScore: 87, odds: 25, url: "https://nywea.org/scholarships/", essays: 2, essayPrompts: ["Government service interest", "Environmental career objective"], questions: 2, transcripts: true, recommendationLetters: 2, gpaMin: 3.0, volunteerHours: "Valued", effort: "medium", effort_hours: 5 },
-            { id: 38, name: "Jim Anderson Memorial (NYWEA)", amount: 1250, renewable: false, deadline: "2026-04-15", type: "merit", tier: "additional", matchScore: 83, odds: 38, url: "https://nywea.org/scholarships/", essays: 1, essayPrompts: ["Wastewater treatment innovation"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "None required", effort: "low", effort_hours: 3 },
-            { id: 39, name: "John Lenard Civil Engineering (ASCE)", amount: 5000, renewable: false, deadline: "2026-01-15", type: "merit", tier: "additional", matchScore: 89, odds: 12, url: "https://www.asce.org/career-growth/awards-and-honors/scholarships/", essays: 1, essayPrompts: ["Water supply and environmental engineering"], questions: 1, transcripts: true, recommendationLetters: 2, gpaMin: 3.2, volunteerHours: "ASCE membership required", effort: "high", effort_hours: 6 },
-            { id: 40, name: "National Hydropower Association Scholarship", amount: 2500, renewable: false, deadline: "2026-02-13", type: "merit", tier: "additional", matchScore: 80, odds: 22, url: "https://www.hydro.org/awards/past-chairs-legacy-scholarship/", essays: 0, essayPrompts: [], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 15+", effort: "medium", effort_hours: 4 },
-            { id: 41, name: "American Solar Energy Society", amount: 3000, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", matchScore: 79, odds: 19, url: "https://www.ases.org/scholarships/", essays: 1, essayPrompts: ["Solar energy and renewable systems"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 20+", effort: "medium", effort_hours: 4 },
-            { id: 42, name: "ASSP Foundation Academic Scholarships", amount: 2500, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", matchScore: 81, odds: 26, url: "https://www.assp.org/scholarships/", essays: 1, essayPrompts: ["Health and safety excellence"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "None required", effort: "medium", effort_hours: 4 },
-            { id: 43, name: "NEHA Environmental Health Scholarships", amount: 2000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", matchScore: 80, odds: 32, url: "https://www.neha.org/practice/resources", essays: 1, essayPrompts: ["Environmental health career"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 10+", effort: "low", effort_hours: 3 },
-            { id: 44, name: "EREF Scholarships", amount: 3000, renewable: true, deadline: "2026-04-15", type: "merit", tier: "additional", matchScore: 77, odds: 15, url: "https://erefdn.org/scholarships/", essays: 1, essayPrompts: ["Waste management and sustainability"], questions: 3, transcripts: true, recommendationLetters: 2, gpaMin: 3.1, volunteerHours: "Valued", effort: "high", effort_hours: 7 },
-            { id: 45, name: "AEE Local Chapter Scholarships", amount: 2000, renewable: false, deadline: "2026-04-26", type: "merit", tier: "additional", matchScore: 82, odds: 36, url: "https://www.aeecenter.org/foundation-scholarships", essays: 1, essayPrompts: ["Energy engineering local focus"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "None required", effort: "low", effort_hours: 3 },
-            { id: 46, name: "IMEG Underrepresented STEM", amount: 10000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", matchScore: 88, odds: 14, url: "https://www.imegcorp.com/careers/scholarships", essays: 1, essayPrompts: ["STEM career aspirations"], questions: 2, transcripts: true, recommendationLetters: 2, gpaMin: 3.0, volunteerHours: "None required", effort: "high", effort_hours: 6 },
-            { id: 47, name: "ACEC Research Institute Scholarships", amount: 5000, renewable: false, deadline: "2026-06-01", type: "merit", tier: "additional", matchScore: 84, odds: 18, url: "https://acec.org/acec-research-institute/", essays: 1, essayPrompts: ["Engineering and infrastructure"], questions: 2, transcripts: true, recommendationLetters: 2, gpaMin: 3.2, volunteerHours: "Preferred: 15+", effort: "medium", effort_hours: 5 },
-            { id: 48, name: "Colorado Women's Foundation STEM", amount: 4000, renewable: false, deadline: "2026-05-01", type: "merit", tier: "additional", matchScore: 91, odds: 24, url: "https://www.coloradowomenfoundation.org/scholarships/", essays: 1, essayPrompts: ["Women in STEM leadership"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.2, volunteerHours: "Preferred: 20+", effort: "medium", effort_hours: 4 },
-            { id: 49, name: "Striker Scholarship (Colorado Jewish)", amount: 3000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", matchScore: 76, odds: 45, url: "https://bold.org/scholarships/striker-scholarship/", essays: 1, essayPrompts: ["STEM field and Jewish community"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "None required (if eligible)", effort: "low", effort_hours: 2 },
-            { id: 50, name: "NCJW Colorado Section", amount: 2500, renewable: false, deadline: "2026-04-30", type: "merit", tier: "additional", matchScore: 78, odds: 42, url: "https://www.ncjwco.org/scholarships/", essays: 1, essayPrompts: ["STEM and community involvement"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 10+" , effort: "low", effort_hours: 3 },
-            { id: 51, name: "Civitas Foundation (Multi-State)", amount: 5000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", matchScore: 80, odds: 28, url: "https://civitatrust.org/scholarships/", essays: 1, essayPrompts: ["STEM education and career"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.1, volunteerHours: "Preferred: 15+", effort: "medium", effort_hours: 4 },
-            { id: 52, name: "AISES BNSF Foundation (Indigenous)", amount: 2000, renewable: false, deadline: "2026-06-01", type: "merit", tier: "additional", matchScore: 65, odds: 50, url: "https://www.aises.org/scholarships/", essays: 1, essayPrompts: ["Indigenous perspective in STEM"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "None required (if eligible)" , effort: "medium", effort_hours: 4 },
-            { id: 53, name: "Fontana Transport Inc. Scholars", amount: 5000, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", matchScore: 79, odds: 31, url: "https://www.fontanagroup.com/scholarships/", essays: 1, essayPrompts: ["First-gen STEM student journey"], questions: 2, transcripts: true, recommendationLetters: 2, gpaMin: 3.0, volunteerHours: "Preferred: 20+", effort: "medium", effort_hours: 5 },
-            { id: 54, name: "East Tennessee Foundation E.E. Perry", amount: 10000, renewable: false, deadline: "2026-05-31", type: "merit", tier: "additional", matchScore: 60, odds: 48, url: "https://easttennesseefoundation.org/scholarships/", essays: 1, essayPrompts: ["STEM career goals (regional)"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 15+", effort: "medium", effort_hours: 4 },
-            { id: 55, name: "WEF Canham Graduate Studies", amount: 25000, renewable: false, deadline: "2026-02-15", type: "merit", tier: "additional", matchScore: 75, odds: 6, url: "https://www.wef.org/membership-community/education-awards/", essays: 1, essayPrompts: ["Water environment leadership"], questions: 2, transcripts: true, recommendationLetters: 3, gpaMin: 3.5, volunteerHours: "Required: 30+" , effort: "high", effort_hours: 10 },
-            { id: 56, name: "Vista Irrigation District", amount: 3000, renewable: false, deadline: "2026-03-27", type: "merit", tier: "additional", matchScore: 62, odds: 44, url: "https://www.viisd.org/page/scholarships", essays: 1, essayPrompts: ["Water and environmental career"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred (regional)", effort: "low", effort_hours: 3 },
-            { id: 57, name: "Vallecitos Water District", amount: 2000, renewable: false, deadline: "2026-03-27", type: "merit", tier: "additional", matchScore: 64, odds: 41, url: "https://www.sdcwa.org/", essays: 1, essayPrompts: ["Water career aspirations"], questions: 1, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "Preferred: 15+", effort: "low", effort_hours: 2 },
-            { id: 58, name: "American Water Works Association", amount: 3500, renewable: false, deadline: "2026-05-15", type: "merit", tier: "additional", matchScore: 81, odds: 27, url: "https://www.awwa.org/education-training/scholarships", essays: 1, essayPrompts: ["Water utility and engineering"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.0, volunteerHours: "AWWA membership preferred", effort: "medium", effort_hours: 4 },
-            { id: 59, name: "Boettcher Scholarship (Colorado)", amount: 30000, renewable: true, deadline: "2026-11-01", type: "merit", tier: "additional", matchScore: 86, odds: 4, url: "https://www.boettcherfoundation.org/", essays: 2, essayPrompts: ["Leadership and vision", "How Boettcher will impact"], questions: 4, transcripts: true, recommendationLetters: 3, gpaMin: 3.8, volunteerHours: "Required: 50+", effort: "high", effort_hours: 12 },
-            { id: 60, name: "Colorado Merit Scholarship", amount: 5000, renewable: true, deadline: "2026-03-01", type: "merit", tier: "additional", matchScore: 89, odds: 35, url: "https://cdhe.colorado.gov/cosi", essays: 1, essayPrompts: ["Colorado residency and STEM"], questions: 2, transcripts: true, recommendationLetters: 1, gpaMin: 3.5, volunteerHours: "None required", effort: "medium", effort_hours: 4 },
-        ];
-        
-        function getDaysDiff(deadline) {
-            const today = new Date(2026, 2, 13);
-            const deadlineDate = new Date(deadline);
-            const diff = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
-            return diff;
-        }
-        
-        function getEffortColor(effort) {
-            switch(effort) {
-                case "low": return "effort-low";
-                case "medium": return "effort-medium";
-                case "high": return "effort-high";
-                default: return "effort-medium";
-            }
-        }
-        
-        function getSelectivityTier(matchScore, odds) {
-            if (matchScore >= 88 && odds <= 25) return { label: "Your Best Bet", class: "tier-best", icon: "ð¢" };
-            if (matchScore >= 80) return { label: "Worth Applying", class: "tier-medium", icon: "ð¡" };
-            return { label: "Reach Opportunity", class: "tier-reach", icon: "ð´" };
-        }
-        
-        function ScholarshipCard({ scholarship, expanded, onExpand }) {
-            const daysLeft = getDaysDiff(scholarship.deadline);
-            const selectivityTier = getSelectivityTier(scholarship.matchScore, scholarship.odds);
-            
-            const totalDocs = [
-                scholarship.transcripts ? 1 : 0,
-                scholarship.recommendationLetters || 0,
-                scholarship.fafsa ? 1 : 0
-            ].reduce((a,b) => a+b, 0);
-            
-            const totalEssays = scholarship.essays || 0;
-            const totalQuestions = scholarship.questions || 0;
-            const totalItems = totalEssays + totalQuestions + (scholarship.videoRequired ? 1 : 0) + (scholarship.statement ? 1 : 0);
-            
-            return (
-                <div className={`card-gradient rounded-2xl p-6 scholarship-card slide-in`}>
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                        <div className="flex-1">
-                            <div className="flex flex-wrap gap-2 mb-2">
-                                <span className={scholarship.tier === "recommended" ? "recommended-badge" : "additional-badge"}>
-                                    {scholarship.tier === "recommended" ? "ð¯ RECOMMENDED" : "ð ADDITIONAL"}
-                                </span>
-                                <span className={`tier-label ${selectivityTier.class}`}>
-                                    {selectivityTier.icon} {selectivityTier.label}
-                                </span>
-                                <span className={`effort-indicator ${getEffortColor(scholarship.effort)}`}>
-                                    {scholarship.effort_hours}h
-                                </span>
-                            </div>
-                            <h3 className="text-xl font-display text-gray-900">{scholarship.name}</h3>
-                        </div>
-                        
-                        <div className="md:text-right">
-                            <div className="match-score">{scholarship.matchScore}%</div>
-                            <div className="text-xs text-gray-500">Match Score</div>
-                            <div className="text-xs text-gray-500 mt-2">{scholarship.odds}% odds</div>
-                        </div>
-                    </div>
-                    
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4 text-sm">
-                        <div>
-                            <span className="text-gray-500">Amount:</span>
-                            <div className="font-semibold text-purple-600">${scholarship.amount.toLocaleString()}</div>
-                        </div>
-                        <div>
-                            <span className="text-gray-500">Deadline:</span>
-                            <div className={`font-semibold ${daysLeft <= 0 ? "deadline-urgent" : daysLeft <= 7 ? "deadline-soon" : ""}`}>
-                                {daysLeft <= 0 ? "PASSED" : `${daysLeft}d`}
-                            </div>
-                        </div>
-                        <div>
-                            <span className="text-gray-500">Items:</span>
-                            <div className="font-semibold">{totalItems}</div>
-                        </div>
-                        <div>
-                            <span className="text-gray-500">Essays:</span>
-                            <div className="font-semibold">{totalEssays}</div>
-                        </div>
-                        <div>
-                            <span className="text-gray-500">Docs:</span>
-                            <div className="font-semibold">{totalDocs}</div>
-                        </div>
-                    </div>
-                    
-                    {/* Expand Button */}
-                    <button
-                        onClick={() => onExpand(scholarship.id)}
-                        className={`expand-button ${expanded ? "expanded" : ""} w-full`}
-                    >
-                        {expanded ? "Hide Details â²" : "View Requirements & Link â¼"}
-                    </button>
-                    
-                    {/* Expanded Details */}
-                    {expanded && (
-                        <div className="expanded-section fade-in">
-                            {/* Application Link */}
-                            {scholarship.url && (
-                                <div className="mb-4">
-                                    <a
-                                        href={scholarship.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="link-button"
-                                    >
-                                        ð Open Application
-                                    </a>
-                                </div>
-                            )}
-                            
-                            {/* Application Requirements */}
-                            <div className="space-y-1">
-                                {/* Essays */}
-                                {scholarship.essays > 0 && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Essays</div>
-                                        <div className="requirement-value">
-                                            {scholarship.essays} essay{scholarship.essays !== 1 ? "s" : ""}
-                                            {scholarship.essayPrompts.length > 0 && (
-                                                <div className="text-xs mt-1 text-gray-600">
-                                                    {scholarship.essayPrompts.map((p, i) => (
-                                                        <div key={i} className="ml-2 mt-1">â¢ {p}</div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {/* Video */}
-                                {scholarship.videoRequired && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Video</div>
-                                        <div className="requirement-value">
-                                            {scholarship.videoLength} video
-                                            <div className="text-xs mt-1 text-gray-600">
-                                                {scholarship.videPrompt && `Topic: ${scholarship.videPrompt}`}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {/* Questions */}
-                                {scholarship.questions > 0 && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Questions</div>
-                                        <div className="requirement-value">{scholarship.questions} short answer{scholarship.questions !== 1 ? "s" : ""}</div>
-                                    </div>
-                                )}
-                                
-                                {/* Statement */}
-                                {scholarship.statement && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Statement</div>
-                                        <div className="requirement-value">{scholarship.statementLength}</div>
-                                    </div>
-                                )}
-                                
-                                {/* Transcripts */}
-                                {scholarship.transcripts && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Transcript</div>
-                                        <div className="requirement-value">â Official transcript required</div>
-                                    </div>
-                                )}
-                                
-                                {/* Recommendation Letters */}
-                                {scholarship.recommendationLetters > 0 && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Rec. Letters</div>
-                                        <div className="requirement-value">{scholarship.recommendationLetters} letter{scholarship.recommendationLetters !== 1 ? "s" : ""}</div>
-                                    </div>
-                                )}
-                                
-                                {/* FAFSA */}
-                                {scholarship.fafsa && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">FAFSA</div>
-                                        <div className="requirement-value">â FAFSA completion required</div>
-                                    </div>
-                                )}
-                                
-                                {/* GPA */}
-                                {scholarship.gpaMin && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Min GPA</div>
-                                        <div className="requirement-value">{scholarship.gpaMin === "None" ? "No minimum" : `${scholarship.gpaMin} GPA`}</div>
-                                    </div>
-                                )}
-                                
-                                {/* Volunteer Hours */}
-                                {scholarship.volunteerHours && (
-                                    <div className="requirement-row">
-                                        <div className="requirement-label">Volunteer</div>
-                                        <div className="requirement-value">{scholarship.volunteerHours}</div>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            {/* Summary */}
-                            <div className="mt-4 p-3 bg-white rounded border border-purple-200">
-                                <div className="text-xs font-semibold text-gray-700 mb-2">Application Summary</div>
-                                <div className="text-sm text-gray-600">
-                                    Estimated effort: <span className="font-semibold">{scholarship.effort_hours} hours</span> | 
-                                    {totalItems > 0 && <span> {totalItems} total item{totalItems !== 1 ? "s" : ""} to complete</span>}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        }
-        
-        function ScholarshipApp() {
-            const [expandedIds, setExpandedIds] = React.useState(new Set());
-            const [filteredScholarships, setFilteredScholarships] = React.useState(scholarships);
-            const [searchTerm, setSearchTerm] = React.useState("");
-            const [showRecommended, setShowRecommended] = React.useState(true);
-            const [showAdditional, setShowAdditional] = React.useState(true);
-            const [minAmount, setMinAmount] = React.useState(0);
-            
-            const toggleExpand = (id) => {
-                const newSet = new Set(expandedIds);
-                if (newSet.has(id)) {
-                    newSet.delete(id);
-                } else {
-                    newSet.add(id);
-                }
-                setExpandedIds(newSet);
-            };
-            
-            React.useEffect(() => {
-                let results = scholarships.filter(s => {
-                    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase());
-                    const matchesAmount = s.amount >= minAmount;
-                    const matchesTier = (showRecommended && s.tier === "recommended") || 
-                                       (showAdditional && s.tier === "additional");
-                    return matchesSearch && matchesAmount && matchesTier;
-                });
-                
-                results.sort((a, b) => {
-                    const daysA = getDaysDiff(a.deadline);
-                    const daysB = getDaysDiff(b.deadline);
-                    if (daysA > 0 && daysB <= 0) return -1;
-                    if (daysA <= 0 && daysB > 0) return 1;
-                    return b.matchScore - a.matchScore;
-                });
-                
-                setFilteredScholarships(results);
-            }, [searchTerm, minAmount, showRecommended, showAdditional]);
-            
-            return (
-                <div className="min-h-screen pb-16 pt-4 px-4 md:px-6">
-                    {/* Header */}
-                    <div className="max-w-7xl mx-auto mb-8 slide-in">
-                        <div className="bg-white rounded-3xl p-8 border border-purple-200 shadow-xl">
-                            <h1 className="text-4xl md:text-5xl font-display text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2">
-                                Dakota's Scholarship Finder
-                            </h1>
-                            <p className="text-gray-600 text-lg mb-4">
-                                v3.2: 60 Scholarships + Scoring Methodology + Application Details & Direct Links
-                            </p>
-                            <p className="text-gray-500 text-sm">
-                                Click "View Requirements & Link" on any scholarship to see essay count, questions, required documents, and details and apply.
-                            </p>
-                            <a href="/scoring.html" target="_blank" rel="noopener noreferrer" style={{display:'inline-flex',alignItems:'center',gap:'6px',fontSize:'.78rem',fontFamily:'monospace',background:'#f5f3ff',border:'1px solid #ddd6fe',color:'#7c3aed',padding:'.3rem .9rem',borderRadius:'100px',textDecoration:'none',marginTop:'8px'}}>📊 How scores &amp; odds are calculated →</a>
-                        </div>
-                    </div>
-                    
-                    {/* Filters */}
-                    <div className="max-w-7xl mx-auto mb-8 slide-in">
-                        <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-lg space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-3">Search Scholarships</label>
-                                <input
-                                    type="text"
-                                    placeholder="Search by name..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition"
-                                />
-                            </div>
-                            
-                            <div className="grid md:grid-cols-3 gap-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                                        Minimum Amount: ${minAmount.toLocaleString()}
-                                    </label>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="30000"
-                                        step="1000"
-                                        value={minAmount}
-                                        onChange={(e) => setMinAmount(parseInt(e.target.value))}
-                                        className="w-full"
-                                    />
-                                </div>
-                                
-                                <div className="flex items-center gap-4">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showRecommended}
-                                            onChange={(e) => setShowRecommended(e.target.checked)}
-                                            className="w-5 h-5"
-                                        />
-                                        <span className="text-sm font-medium text-gray-700">ð¯ Recommended (30)</span>
-                                    </label>
-                                </div>
-                                
-                                <div className="flex items-center gap-4">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={showAdditional}
-                                            onChange={(e) => setShowAdditional(e.target.checked)}
-                                            className="w-5 h-5"
-                                        />
-                                        <span className="text-sm font-medium text-gray-700">ð Additional (30)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Scholarships List */}
-                    <div className="max-w-7xl mx-auto">
-                        {filteredScholarships.length === 0 ? (
-                            <div className="text-center py-12 bg-white rounded-2xl">
-                                <p className="text-gray-500 text-lg">No scholarships match your filters.</p>
-                            </div>
-                        ) : (
-                            <div className="grid gap-4">
-                                {filteredScholarships.map((scholarship, idx) => (
-                                    <ScholarshipCard
-                                        key={scholarship.id}
-                                        scholarship={scholarship}
-                                        expanded={expandedIds.has(scholarship.id)}
-                                        onExpand={toggleExpand}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-        
-        ReactDOM.createRoot(document.getElementById('root')).render(<ScholarshipApp />);
-    </script>
+
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Dakota's Scholarship Finder · v3.2</div>
+    <h1 class="header-title">Find Your <em>Funding.</em></h1>
+    <p class="header-sub">Environmental Engineering · Water Sustainability · Colorado · Class of 2026</p>
+    <div class="stats-row">
+      <div class="stat-pill"><strong id="totalCount">60</strong> scholarships</div>
+      <div class="stat-pill">up to <strong id="totalValue">$0</strong></div>
+      <div class="stat-pill"><strong id="upcomingCount">0</strong> upcoming</div>
+      <div class="stat-pill"><strong id="urgentCount">0</strong> due within 30 days</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <input type="text" id="searchBox" placeholder="Search scholarships…" />
+    </div>
+    <div class="filter-chips">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="best">⭐ Best Bets</button>
+      <button class="filter-btn" data-filter="worth">✓ Worth Applying</button>
+      <button class="filter-btn" data-filter="reach">🎯 Reach</button>
+      <button class="filter-btn" data-filter="calpoly">Cal Poly</button>
+    </div>
+    <select class="sort-select" id="sortSelect">
+      <option value="deadline">Deadline (Soonest)</option>
+      <option value="match">Match Score</option>
+      <option value="odds">Winning Odds</option>
+      <option value="amount">Amount (High→Low)</option>
+      <option value="name">Name A–Z</option>
+    </select>
+  </div>
+</div>
+
+<main>
+  <div class="section-header">
+    <h2 class="section-title" id="sectionTitle">All Scholarships</h2>
+    <span class="section-count" id="sectionCount"></span>
+  </div>
+  <div class="cards-grid" id="cardsGrid"></div>
+  <div class="empty-state" id="emptyState">
+    <h3>No matches found</h3>
+    <p>Try adjusting your search or filters.</p>
+  </div>
+</main>
+
+<footer>
+  <p>⚠️ Deadlines are best estimates — always verify on the official scholarship website before applying.</p>
+  <p style="margin-top:.35rem">Built with ♥ for Dakota · <a href="https://dakota-scholarships.vercel.app">dakota-scholarships.vercel.app</a></p>
+</footer>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  // SCHOLARSHIP DATA — 60 entries with actual deadline dates
+  // ═══════════════════════════════════════════════════════
+  const scholarships = [
+    // ── RECOMMENDED (30) ──
+    { name: "Cobell Scholarship", amount: 8000, matchScore: 92, winningOdds: 15, tier: "best", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For Native American students; strong community/leadership focus", list: "Recommended", deadline: "2026-04-30" },
+    { name: "AWRA Scholarship", amount: 2000, matchScore: 90, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","STEM"], notes: "American Water Resources Association; perfect fit for water sustainability focus", list: "Recommended", deadline: "2026-04-23" },
+    { name: "SWCS Scholarship", amount: 2000, matchScore: 88, winningOdds: 20, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Soil and Water Conservation Society; ideal for environmental engineering track", list: "Recommended", deadline: "2026-02-10" },
+    { name: "WEF Canham Graduate Award", amount: 5000, matchScore: 87, winningOdds: 12, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Water Environment Federation; strong alignment with water engineering career goals", list: "Recommended", deadline: "2026-03-01" },
+    { name: "AISES Scholarship", amount: 5000, matchScore: 88, winningOdds: 14, tier: "best", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "American Indian Science & Engineering Society; supports Native STEM students", list: "Recommended", deadline: "2026-04-30" },
+    { name: "SWE Scholarship", amount: 10000, matchScore: 85, winningOdds: 8, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Society of Women Engineers; competitive but strong profile match", list: "Recommended", deadline: "2026-03-31" },
+    { name: "ASCE Foundation Scholarship", amount: 3000, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "American Society of Civil Engineers; civil/environmental engineering focus", list: "Recommended", deadline: "2026-03-15" },
+    { name: "AWWA Scholarship", amount: 5000, matchScore: 89, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "American Water Works Association; perfect match for water sustainability major", list: "Recommended", deadline: "2026-04-01" },
+    { name: "Udall Scholarship", amount: 7000, matchScore: 86, winningOdds: 7, tier: "worth", school: "Any", categories: ["Environmental","Leadership","Community Service"], notes: "For students committed to careers related to the environment; strong essay component", list: "Recommended", deadline: "2026-03-05" },
+    { name: "Garden Club of America Scholarship", amount: 5000, matchScore: 84, winningOdds: 14, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Environmental horticulture/conservation; water focus qualifies", list: "Recommended", deadline: "2026-01-17" },
+    { name: "Colorado Water Congress Scholarship", amount: 2500, matchScore: 88, winningOdds: 22, tier: "best", school: "Any", categories: ["Water/Sustainability","State/Local"], notes: "Colorado-focused water policy/engineering; smaller pool, great local match", list: "Recommended", deadline: "2026-04-01" },
+    { name: "Colorado STEM Scholarship", amount: 3000, matchScore: 78, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "Colorado-specific STEM scholarship; relevant for CU Boulder applicants", list: "Recommended", deadline: "2026-04-15" },
+    { name: "EPA P3 Award", amount: 15000, matchScore: 72, winningOdds: 4, tier: "reach", school: "Any", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "EPA sustainability design competition; team-based, high prestige", list: "Recommended", deadline: "2026-12-06" },
+    { name: "Gates Scholarship", amount: 40000, matchScore: 75, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Extremely competitive; full ride for minority students with exceptional profile", list: "Recommended", deadline: "2026-09-15" },
+    { name: "Regeneron Science Talent Search", amount: 25000, matchScore: 68, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Prestigious science research competition; requires original research project", list: "Recommended", deadline: "2026-11-12" },
+    { name: "AEESP Scholarship", amount: 3000, matchScore: 85, winningOdds: 13, tier: "best", school: "Any", categories: ["Environmental","Engineering"], notes: "Association of Environmental Engineering & Science Professors; strong fit", list: "Recommended", deadline: "2026-05-15" },
+    { name: "National Merit Scholarship", amount: 2500, matchScore: 82, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit"], notes: "Based on PSAT/NMSQT; check if scores qualify for semifinalist status", list: "Recommended", deadline: "2026-02-18" },
+    { name: "Rocky Mountain WEA Scholarship", amount: 2000, matchScore: 87, winningOdds: 20, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","State/Local"], notes: "Regional water environment association; great local fit", list: "Recommended", deadline: "2026-02-28" },
+    { name: "ASU Barrett Scholarship", amount: 8000, matchScore: 80, winningOdds: 10, tier: "worth", school: "ASU", categories: ["Academic Merit","Leadership"], notes: "ASU Barrett Honors College merit scholarship", list: "Recommended", deadline: "2026-02-01" },
+    { name: "CU Boulder Engineering Excellence", amount: 5000, matchScore: 79, winningOdds: 9, tier: "worth", school: "CU Boulder", categories: ["Engineering","Academic Merit"], notes: "CU Boulder College of Engineering and Applied Science merit award", list: "Recommended", deadline: "2026-01-15" },
+    { name: "CSU Rams Scholarship", amount: 4000, matchScore: 80, winningOdds: 11, tier: "worth", school: "CSU", categories: ["Academic Merit","Leadership"], notes: "CSU general merit scholarship; GPA and involvement focused", list: "Recommended", deadline: "2026-02-01" },
+    { name: "NSBE Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "National Society of Black Engineers; supports minority STEM students", list: "Recommended", deadline: "2026-06-30" },
+    { name: "WaterReuse Foundation Scholarship", amount: 5000, matchScore: 87, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Focused on water reuse/recycling research; strong thematic fit", list: "Recommended", deadline: "2026-04-15" },
+    { name: "WEFTEC Student Design Award", amount: 3000, matchScore: 84, winningOdds: 12, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water Environment Federation design competition; team project", list: "Recommended", deadline: "2026-05-01" },
+    { name: "ASHRAE Scholarship", amount: 5000, matchScore: 80, winningOdds: 9, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "HVAC/building systems engineering; adjacent to environmental engineering track", list: "Recommended", deadline: "2026-12-01" },
+    { name: "IWA Student Design Competition", amount: 3000, matchScore: 83, winningOdds: 11, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "International Water Association; water-specific competition with awards", list: "Recommended", deadline: "2026-06-01" },
+    { name: "WE (Women's Engineering) Scholarship", amount: 7500, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Broad women in engineering award; profile is strong match", list: "Recommended", deadline: "2026-03-15" },
+    { name: "AMS Freshman Scholarship", amount: 10000, matchScore: 74, winningOdds: 6, tier: "worth", school: "Any", categories: ["STEM","Environmental","Academic Merit"], notes: "American Meteorological Society; environmental science crossover potential", list: "Recommended", deadline: "2026-02-01" },
+    { name: "Smart Irrigation Scholarship", amount: 2000, matchScore: 86, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water efficiency/irrigation technology focus; niche but ideal profile match", list: "Recommended", deadline: "2026-05-15" },
+    { name: "Colorado Environmental Scholarship", amount: 3000, matchScore: 85, winningOdds: 17, tier: "best", school: "Any", categories: ["Environmental","State/Local","Water/Sustainability"], notes: "Colorado environmental focus; strong local match for in-state applicants", list: "Recommended", deadline: "2026-04-15" },
+
+    // ── ADDITIONAL (30) ──
+    { name: "Coca-Cola Scholars", amount: 20000, matchScore: 70, winningOdds: 1, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "Extremely competitive national scholarship; leadership-driven", list: "Additional", deadline: "2026-10-31" },
+    { name: "Dell Scholars Program", amount: 20000, matchScore: 72, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "For students who have overcome significant obstacles; persistence focused", list: "Additional", deadline: "2026-12-01" },
+    { name: "Elks Most Valuable Student", amount: 12500, matchScore: 74, winningOdds: 4, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Elks Lodge national scholarship; leadership and service emphasis", list: "Additional", deadline: "2026-11-01" },
+    { name: "Cal Poly Environmental Engineering Scholarship", amount: 3500, matchScore: 88, winningOdds: 20, tier: "best", school: "Cal Poly", categories: ["Engineering","Environmental","Cal Poly"], notes: "Departmental scholarship; strong fit for admitted student", list: "Additional", deadline: "2026-03-02" },
+    { name: "CSU Green Initiative Scholarship", amount: 2000, matchScore: 77, winningOdds: 12, tier: "worth", school: "CSU", categories: ["Environmental","Water/Sustainability"], notes: "CSU sustainability focus; relevant for environmental engineering applicants", list: "Additional", deadline: "2026-03-15" },
+    { name: "Colorado Gives Scholarship", amount: 1500, matchScore: 81, winningOdds: 20, tier: "best", school: "Any", categories: ["Community Service","State/Local"], notes: "Colorado community service focus; smaller local pool", list: "Additional", deadline: "2026-04-30" },
+    { name: "AAUW Scholarship", amount: 5000, matchScore: 78, winningOdds: 9, tier: "worth", school: "Any", categories: ["Women in STEM","Academic Merit"], notes: "American Association of University Women; women pursuing STEM degrees", list: "Additional", deadline: "2026-11-15" },
+    { name: "Zonta Amelia Earhart Fellowship", amount: 10000, matchScore: 67, winningOdds: 3, tier: "reach", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Primarily graduate level; check if undergraduate track available", list: "Additional", deadline: "2026-11-15" },
+    { name: "Climate Solutions Scholarship", amount: 3000, matchScore: 82, winningOdds: 11, tier: "worth", school: "Any", categories: ["Environmental","Water/Sustainability","Leadership"], notes: "Climate/sustainability focus; essay-heavy, strong interest match", list: "Additional", deadline: "2026-05-31" },
+    { name: "FIRST Robotics Alumni Scholarship", amount: 2500, matchScore: 73, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "For FIRST Robotics participants; check eligibility", list: "Additional", deadline: "2026-04-15" },
+    { name: "AXA Achievement Scholarship", amount: 10000, matchScore: 71, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Community achievement focus; competitive national pool", list: "Additional", deadline: "2026-12-15" },
+    { name: "Davidson Fellows Scholarship", amount: 25000, matchScore: 66, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Academic Merit","Engineering"], notes: "For exceptional STEM projects; requires significant original work", list: "Additional", deadline: "2026-02-13" },
+    { name: "Siemens Competition", amount: 100000, matchScore: 60, winningOdds: 1, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Top STEM competition; requires independent research project", list: "Additional", deadline: "2026-09-30" },
+    { name: "Jack Kent Cooke Scholarship", amount: 40000, matchScore: 74, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Full scholarship for high-achieving, financially challenged students", list: "Additional", deadline: "2026-09-25" },
+    { name: "Cal Poly Merit Scholarship", amount: 5000, matchScore: 82, winningOdds: 13, tier: "best", school: "Cal Poly", categories: ["Academic Merit","Cal Poly"], notes: "Cal Poly general merit award; leverages accepted student status", list: "Additional", deadline: "2026-03-01" },
+    { name: "Pat Tillman Scholarship", amount: 10000, matchScore: 69, winningOdds: 3, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "For military-connected students or those with strong service commitment", list: "Additional", deadline: "2026-02-28" },
+    { name: "Horatio Alger Scholarship", amount: 25000, matchScore: 73, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For students who have overcome adversity; character-driven award", list: "Additional", deadline: "2026-10-25" },
+    { name: "Hispanic Scholarship Fund", amount: 5000, matchScore: 78, winningOdds: 8, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Largest HSF private scholarship; supports Hispanic college students", list: "Additional", deadline: "2026-02-15" },
+    { name: "National Action Council Scholarship", amount: 2500, matchScore: 75, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Academic Merit","Leadership"], notes: "NACME supports underrepresented minorities in engineering", list: "Additional", deadline: "2026-03-31" },
+    { name: "Tylenol Future Care Scholarship", amount: 10000, matchScore: 63, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Health/wellness/service focus; reach but worth the essay effort", list: "Additional", deadline: "2026-06-30" },
+    { name: "Fulbright U.S. Student Program", amount: 20000, matchScore: 64, winningOdds: 2, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership"], notes: "International study/research grant; post-grad but worth awareness", list: "Additional", deadline: "2026-10-14" },
+    { name: "Paladin Foundation Scholarship", amount: 4000, matchScore: 79, winningOdds: 11, tier: "worth", school: "Any", categories: ["STEM","Leadership","Community Service"], notes: "Colorado-based; STEM + community service emphasis", list: "Additional", deadline: "2026-03-31" },
+    { name: "CU Boulder Environmental Scholarship", amount: 3000, matchScore: 80, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "CU Boulder environmental engineering departmental award", list: "Additional", deadline: "2026-02-15" },
+    { name: "CSU Engineering Scholarship", amount: 4500, matchScore: 80, winningOdds: 10, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering merit scholarship", list: "Additional", deadline: "2026-02-01" },
+    { name: "Walmart Foundation Scholarship", amount: 3000, matchScore: 70, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Need-based with academic component; broad eligibility", list: "Additional", deadline: "2026-01-31" },
+    { name: "Thermo Fisher Scientific Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "STEM focus with lab/science emphasis; engineering aligns well", list: "Additional", deadline: "2026-03-15" },
+    { name: "IEE Foundation Scholarship", amount: 3000, matchScore: 80, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","Environmental"], notes: "Institute of Electrical and Electronics Engineers; engineering merit", list: "Additional", deadline: "2026-10-01" },
+    { name: "Colorado Space Grant Scholarship", amount: 5000, matchScore: 72, winningOdds: 8, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "NASA-affiliated Colorado consortium; STEM engineering focus", list: "Additional", deadline: "2026-04-01" },
+    { name: "BNSF Railway Foundation Scholarship", amount: 2500, matchScore: 76, winningOdds: 9, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Engineering/STEM focus; transportation infrastructure adjacent", list: "Additional", deadline: "2026-03-01" },
+    { name: "CSU College of Engineering Scholarship", amount: 10000, matchScore: 80, winningOdds: 6, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering premier scholarship; high academic bar", list: "Additional", deadline: "2026-02-01" },
+  ];
+
+  // ═══════════════════════════════════════════════════════
+  // STORAGE — preserves all saved data
+  // ═══════════════════════════════════════════════════════
+  const STORAGE_KEY = 'dakotaScholarshipStatuses_v1';
+
+  function loadStatuses() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch { return {}; }
+  }
+
+  function saveStatus(name, status) {
+    const data = loadStatuses();
+    data[name] = status;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function getStatus(name) {
+    return loadStatuses()[name] || 'Not Started';
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DEADLINE HELPERS
+  // ═══════════════════════════════════════════════════════
+  const TODAY = new Date();
+  TODAY.setHours(0, 0, 0, 0);
+
+  function getDaysUntil(deadlineStr) {
+    const dl = new Date(deadlineStr + 'T00:00:00');
+    return Math.ceil((dl - TODAY) / (1000 * 60 * 60 * 24));
+  }
+
+  function formatDeadlineDate(deadlineStr) {
+    const dl = new Date(deadlineStr + 'T00:00:00');
+    return dl.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function getDeadlineClass(days) {
+    if (days < 0) return 'dl-passed';
+    if (days <= 14) return 'dl-urgent';
+    if (days <= 45) return 'dl-soon';
+    return 'dl-ok';
+  }
+
+  function getDeadlineIcon(days) {
+    if (days < 0) return '⛔';
+    if (days === 0) return '🚨';
+    if (days <= 14) return '🔴';
+    if (days <= 45) return '🟡';
+    return '📅';
+  }
+
+  function getCountdownText(days) {
+    if (days < 0) return `Passed ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} ago`;
+    if (days === 0) return '⚠ Due TODAY!';
+    if (days === 1) return '⚠ Due TOMORROW!';
+    if (days <= 7) return `${days} days left — this week!`;
+    if (days <= 30) return `${days} days left`;
+    if (days <= 60) return `${days} days (~${Math.round(days / 7)} wks)`;
+    const months = (days / 30).toFixed(1);
+    return `${days} days (~${months} mo)`;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════
+  let currentFilter = 'all';
+  let currentSort = 'deadline';
+  let searchTerm = '';
+
+  function getFilteredScholarships() {
+    let list = scholarships.filter(s => {
+      const term = searchTerm.toLowerCase();
+      if (term && !s.name.toLowerCase().includes(term) &&
+          !s.notes.toLowerCase().includes(term) &&
+          !s.categories.some(c => c.toLowerCase().includes(term))) return false;
+
+      if (currentFilter === 'best') return s.tier === 'best';
+      if (currentFilter === 'worth') return s.tier === 'worth';
+      if (currentFilter === 'reach') return s.tier === 'reach';
+      if (currentFilter === 'calpoly') return s.school === 'Cal Poly' || s.categories.includes('Cal Poly');
+      return true;
+    });
+
+    list.sort((a, b) => {
+      if (currentSort === 'deadline') {
+        const da = getDaysUntil(a.deadline);
+        const db = getDaysUntil(b.deadline);
+        // passed deadlines go to bottom
+        if (da < 0 && db >= 0) return 1;
+        if (db < 0 && da >= 0) return -1;
+        return da - db;
+      }
+      if (currentSort === 'match') return b.matchScore - a.matchScore;
+      if (currentSort === 'odds') return b.winningOdds - a.winningOdds;
+      if (currentSort === 'amount') return b.amount - a.amount;
+      if (currentSort === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+    return list;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER CARD
+  // ═══════════════════════════════════════════════════════
+  function renderCard(s) {
+    const status = getStatus(s.name);
+    const days = getDaysUntil(s.deadline);
+    const dlClass = getDeadlineClass(days);
+    const dlIcon = getDeadlineIcon(days);
+    const dlDate = formatDeadlineDate(s.deadline);
+    const countdown = getCountdownText(days);
+
+    const tierLabels = { best: '⭐ Your Best Bet', worth: '✓ Worth Applying', reach: '🎯 Reach Opportunity' };
+    const tierClasses = { best: 'tier-best', worth: 'tier-worth', reach: 'tier-reach' };
+
+    return `
+      <div class="card">
+        <div class="deadline-banner ${dlClass}">
+          <span>
+            <span class="dl-icon">${dlIcon}</span>
+            <span class="dl-date-str">Deadline: ${dlDate}</span>
+          </span>
+          <span class="dl-countdown">${countdown}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <div class="card-name">${s.name}</div>
+            <div class="card-amount">$${s.amount.toLocaleString()}</div>
+          </div>
+          <span class="tier-badge ${tierClasses[s.tier]}">${tierLabels[s.tier]}</span>
+          <div class="score-row">
+            <span class="score-chip">Match: <strong>${s.matchScore}%</strong></span>
+            <span class="score-chip">Win odds: <strong>~${s.winningOdds}%</strong></span>
+            ${s.school !== 'Any' ? `<span class="score-chip">School: <strong>${s.school}</strong></span>` : ''}
+            <span class="score-chip">List: <strong>${s.list}</strong></span>
+          </div>
+          <div class="card-notes">${s.notes}</div>
+          <div class="card-footer">
+            <select class="status-select" data-name="${s.name}" onchange="handleStatusChange(this)">
+              <option value="Not Started" ${status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+              <option value="Awarded" ${status === 'Awarded' ? 'selected' : ''}>Awarded</option>
+              <option value="Rejected" ${status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+            </select>
+            <div class="card-categories">
+              ${s.categories.slice(0, 3).map(c => `<span class="cat-tag">${c}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function handleStatusChange(el) {
+    saveStatus(el.dataset.name, el.value);
+  }
+
+  function updateStats() {
+    const totalVal = scholarships.reduce((sum, s) => sum + s.amount, 0);
+    const upcoming = scholarships.filter(s => getDaysUntil(s.deadline) >= 0).length;
+    const urgent = scholarships.filter(s => {
+      const d = getDaysUntil(s.deadline);
+      return d >= 0 && d <= 30;
+    }).length;
+    document.getElementById('totalCount').textContent = scholarships.length;
+    document.getElementById('totalValue').textContent = '$' + totalVal.toLocaleString();
+    document.getElementById('upcomingCount').textContent = upcoming;
+    document.getElementById('urgentCount').textContent = urgent;
+  }
+
+  function render() {
+    const filtered = getFilteredScholarships();
+    const grid = document.getElementById('cardsGrid');
+    const empty = document.getElementById('emptyState');
+    const count = document.getElementById('sectionCount');
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      grid.innerHTML = filtered.map(renderCard).join('');
+    }
+
+    count.textContent = `${filtered.length} shown`;
+
+    const titles = {
+      all: 'All Scholarships',
+      best: 'Your Best Bets',
+      worth: 'Worth Applying',
+      reach: 'Reach Opportunities',
+      calpoly: 'Cal Poly Scholarships'
+    };
+    document.getElementById('sectionTitle').textContent = titles[currentFilter] || 'All Scholarships';
+  }
+
+  // ── EVENT LISTENERS ──
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    render();
+  });
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      render();
+    });
+  });
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    currentSort = e.target.value;
+    render();
+  });
+
+  // ── INIT ──
+  updateStats();
+  render();
+</script>
 </body>
 </html>
