@@ -433,6 +433,44 @@
       flex: 1;
     }
 
+    /* Scholarship info section */
+    .scholarship-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--rule);
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+    .info-label {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .info-value {
+      font-family: var(--sans);
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .info-value.amount {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+    .info-value.deadline {
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
     .status-section {
       margin-bottom: 2rem;
     }
@@ -623,6 +661,9 @@
     <button class="modal-close-btn" onclick="closeApplicationModal()">✕</button>
   </div>
   <div class="modal-body">
+    <!-- Scholarship Info Section -->
+    <div class="scholarship-info" id="scholarshipInfo"></div>
+
     <!-- Status Section -->
     <div class="status-section">
       <h3>Application Status</h3>
@@ -658,12 +699,13 @@
 
 <header>
   <div class="header-inner">
-    <div class="eyebrow">Dakota's Scholarship Finder · v3.2</div>
+    <div class="eyebrow">Dakota's Scholarship Finder · v4.0</div>
     <h1 class="header-title">Find Your <em>Funding.</em></h1>
     <p class="header-sub">Environmental Engineering · Water Sustainability · Colorado · Class of 2026</p>
     <div class="stats-row">
       <div class="stat-pill"><strong id="totalCount">72</strong> scholarships</div>
       <div class="stat-pill">up to <strong id="totalValue">$0</strong></div>
+      <div class="stat-pill"><strong id="appliedCount">0</strong> applications</div>
       <div class="stat-pill"><strong id="upcomingCount">0</strong> upcoming</div>
       <div class="stat-pill"><strong id="urgentCount">0</strong> due within 30 days</div>
     </div>
@@ -973,8 +1015,14 @@
       const d = getDaysUntil(s.deadline);
       return d >= 0 && d <= 30;
     }).length;
+    
+    // Count applications submitted
+    const appData = loadApplicationData();
+    const applied = Object.values(appData).filter(a => a.status === 'Applied' || a.status === 'Awarded').length;
+    
     document.getElementById('totalCount').textContent = scholarships.length;
     document.getElementById('totalValue').textContent = '$' + totalVal.toLocaleString();
+    document.getElementById('appliedCount').textContent = applied;
     document.getElementById('upcomingCount').textContent = upcoming;
     document.getElementById('urgentCount').textContent = urgent;
   }
@@ -1073,6 +1121,31 @@
     // Set application URL for button
     window.currentApplicationUrl = scholarship.applicationUrl;
     window.currentScholarshipName = scholarshipName;
+
+    // Render scholarship info
+    const daysUntil = getDaysUntil(scholarship.deadline);
+    const dlClass = getDeadlineClass(daysUntil);
+    const dlLabel = daysUntil < 0 ? 'Passed' : daysUntil === 0 ? 'Due Today!' : `${daysUntil} days left`;
+    const dlDate = formatDeadlineDate(scholarship.deadline);
+    
+    document.getElementById('scholarshipInfo').innerHTML = `
+      <div class="info-item">
+        <div class="info-label">Award Amount</div>
+        <div class="info-value amount">$${scholarship.amount.toLocaleString()}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Match Score</div>
+        <div class="info-value">${scholarship.matchScore}%</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Deadline</div>
+        <div class="info-value deadline">${dlDate}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Time Remaining</div>
+        <div class="info-value">${dlLabel}</div>
+      </div>
+    `;
 
     // Render status buttons
     const statusBtns = document.getElementById('statusButtons');
