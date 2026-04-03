@@ -198,6 +198,7 @@
       border-radius: 12px;
       overflow: hidden;
       transition: transform .15s, box-shadow .15s, border-color .15s;
+      position: relative;
     }
     .card:hover {
       transform: translateY(-2px);
@@ -643,6 +644,25 @@
       color: #fff;
     }
 
+    /* Application status badge on cards */
+    .card-status-badge {
+      position: absolute;
+      top: .75rem;
+      right: .75rem;
+      font-size: .65rem;
+      font-family: var(--mono);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .35rem .6rem;
+      border-radius: 4px;
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .card-status-badge.applied { background: var(--blue-light); color: var(--blue); }
+    .card-status-badge.awarded { background: #dcfce7; color: #16a34a; }
+    .card-status-badge.rejected { background: var(--red-light); color: var(--red); }
+
     @media (max-width: 600px) {
       .cards-grid { grid-template-columns: 1fr; }
       .toolbar-inner { flex-direction: column; align-items: stretch; }
@@ -723,6 +743,7 @@
       <button class="filter-btn" data-filter="worth">✓ Worth Applying</button>
       <button class="filter-btn" data-filter="reach">🎯 Reach</button>
       <button class="filter-btn" data-filter="calpoly">Cal Poly</button>
+      <button class="filter-btn" data-filter="applied">✓ Applied</button>
       <button class="filter-btn" data-filter="archived">📦 Archived</button>
     </div>
     <select class="sort-select" id="sortSelect">
@@ -928,6 +949,10 @@
       if (currentFilter === 'worth') return s.tier === 'worth';
       if (currentFilter === 'reach') return s.tier === 'reach';
       if (currentFilter === 'calpoly') return s.school === 'Cal Poly' || s.categories.includes('Cal Poly');
+      if (currentFilter === 'applied') {
+        const appData = getApplicationData(s.name);
+        return appData.status === 'Applied' || appData.status === 'Awarded';
+      }
       return true;
     });
 
@@ -964,8 +989,15 @@
     const tierLabels = { best: '⭐ Your Best Bet', worth: '✓ Worth Applying', reach: '🎯 Reach Opportunity' };
     const tierClasses = { best: 'tier-best', worth: 'tier-worth', reach: 'tier-reach' };
 
+    // Get application status
+    const appData = getApplicationData(s.name);
+    const appStatus = appData.status;
+    const appBadgeClass = appStatus === 'Applied' || appStatus === 'Awarded' ? appStatus.toLowerCase() : '';
+    const appBadgeText = appStatus !== 'Not Started' && appStatus !== 'In Progress' ? appStatus : '';
+
     return `
       <div class="card">
+        ${appBadgeText ? `<div class="card-status-badge ${appBadgeClass}">${appBadgeText}</div>` : ''}
         <div class="deadline-banner ${dlClass}">
           <span>
             <span class="dl-icon">${dlIcon}</span>
@@ -1049,6 +1081,7 @@
       worth: 'Worth Applying',
       reach: 'Reach Opportunities',
       calpoly: 'Cal Poly Scholarships',
+      applied: 'Applications Submitted',
       archived: 'Archived (Past Deadlines)'
     };
     document.getElementById('sectionTitle').textContent = titles[currentFilter] || 'All Scholarships';
@@ -1070,6 +1103,13 @@
   document.getElementById('sortSelect').addEventListener('change', (e) => {
     currentSort = e.target.value;
     render();
+  });
+
+  // ESC key closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeApplicationModal();
+    }
   });
 
   // ═══════════════════════════════════════════════════════
