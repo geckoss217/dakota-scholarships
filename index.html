@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dakota's Scholarship Finder v3.2</title>
+  <title>Dakota's Scholarship Finder v4.0</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -367,14 +367,294 @@
     }
     footer a { color: var(--accent); text-decoration: none; }
 
+    /* ── MODAL & APPLICATION PANEL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 200;
+    }
+    .modal-backdrop.active { display: block; }
+
+    .application-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      border: 1.5px solid var(--rule);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 90vw;
+      max-height: 85vh;
+      z-index: 201;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.15);
+    }
+    .application-modal.active { display: flex; }
+
+    .modal-header {
+      background: var(--ink);
+      color: #fff;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .modal-header h2 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      margin: 0;
+      flex: 1;
+    }
+    .modal-close-btn {
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .modal-close-btn:hover { background: rgba(255,255,255,.3); }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .status-section {
+      margin-bottom: 2rem;
+    }
+    .status-section h3 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      margin-bottom: .75rem;
+      color: var(--ink);
+    }
+    .status-buttons {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+    .status-btn {
+      border: 1.5px solid var(--rule);
+      background: transparent;
+      border-radius: 8px;
+      padding: .5rem 1rem;
+      font-family: var(--sans);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .status-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .status-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .status-btn.applied { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+    .status-btn.applied.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .status-btn.awarded { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
+    .status-btn.awarded.active { background: #22c55e; border-color: #22c55e; color: #fff; }
+    .status-btn.rejected { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    .status-btn.rejected.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+    .requirements-section {
+      margin-bottom: 2rem;
+    }
+    .requirements-section h3 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      margin-bottom: .75rem;
+      color: var(--ink);
+    }
+    .requirements-list {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .requirement-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .6rem .8rem;
+      background: var(--bg);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .requirement-item:hover {
+      background: #f5f3f0;
+      border-color: var(--muted);
+    }
+    .requirement-item input[type="checkbox"] {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+    .requirement-item.completed {
+      opacity: 0.6;
+      text-decoration: line-through;
+      background: #f9f9f9;
+    }
+    .requirement-label {
+      flex: 1;
+      font-size: .9rem;
+      cursor: pointer;
+    }
+
+    .progress-section {
+      margin-bottom: 2rem;
+    }
+    .progress-label {
+      font-family: var(--mono);
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: .4rem;
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--rule);
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width .3s ease;
+    }
+
+    .notes-section {
+      margin-bottom: 2rem;
+    }
+    .notes-section h3 {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      margin-bottom: .75rem;
+      color: var(--ink);
+    }
+    .notes-textarea {
+      width: 100%;
+      border: 1.5px solid var(--rule);
+      border-radius: 8px;
+      padding: .75rem;
+      font-family: var(--sans);
+      font-size: .85rem;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .notes-textarea:focus { border-color: var(--accent); }
+
+    .modal-actions {
+      display: flex;
+      gap: .75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--rule);
+      background: var(--bg);
+    }
+    .action-btn {
+      flex: 1;
+      border: 1.5px solid var(--rule);
+      background: transparent;
+      border-radius: 8px;
+      padding: .6rem 1rem;
+      font-family: var(--sans);
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .action-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .action-btn.primary:hover { background: #1f5b3d; }
+
+    .card-open-app-btn {
+      margin-top: .75rem;
+      padding: .5rem .75rem;
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent);
+      font-family: var(--sans);
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      width: 100%;
+      text-align: center;
+    }
+    .card-open-app-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
     @media (max-width: 600px) {
       .cards-grid { grid-template-columns: 1fr; }
       .toolbar-inner { flex-direction: column; align-items: stretch; }
       .filter-chips { justify-content: flex-start; }
+      .application-modal { width: 95vw; max-height: 90vh; }
+      .modal-header h2 { font-size: 1.25rem; }
     }
   </style>
 </head>
 <body>
+
+<div id="modalBackdrop" class="modal-backdrop"></div>
+<div id="applicationModal" class="application-modal">
+  <div class="modal-header">
+    <h2 id="modalTitle">Scholarship Application</h2>
+    <button class="modal-close-btn" onclick="closeApplicationModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <!-- Status Section -->
+    <div class="status-section">
+      <h3>Application Status</h3>
+      <div class="status-buttons" id="statusButtons"></div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <div class="progress-label">Requirements Progress</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label" id="progressText" style="margin-top: .4rem;">0/0 complete</div>
+    </div>
+
+    <!-- Requirements Section -->
+    <div class="requirements-section">
+      <h3>Required Materials</h3>
+      <div class="requirements-list" id="requirementsList"></div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="notes-section">
+      <h3>My Notes</h3>
+      <textarea class="notes-textarea" id="notesInput" placeholder="Add your own notes here..."></textarea>
+    </div>
+  </div>
+  <div class="modal-actions">
+    <button class="action-btn primary" id="viewAppBtn" onclick="openApplicationLink()">View Application</button>
+    <button class="action-btn" onclick="closeApplicationModal()">Done</button>
+  </div>
+</div>
 
 <header>
   <div class="header-inner">
@@ -436,81 +716,81 @@
   // ═══════════════════════════════════════════════════════
   const scholarships = [
     // ── RECOMMENDED (30) ──
-    { name: "Cobell Scholarship", amount: 8000, matchScore: 92, winningOdds: 15, tier: "best", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For Native American students; strong community/leadership focus", list: "Recommended", deadline: "2026-04-30" },
-    { name: "AWRA Scholarship", amount: 2000, matchScore: 90, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","STEM"], notes: "American Water Resources Association; perfect fit for water sustainability focus", list: "Recommended", deadline: "2026-04-23" },
-    { name: "SWCS Scholarship", amount: 2000, matchScore: 88, winningOdds: 20, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Soil and Water Conservation Society; ideal for environmental engineering track", list: "Recommended", deadline: "2026-02-10" },
-    { name: "WEF Canham Graduate Award", amount: 5000, matchScore: 87, winningOdds: 12, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Water Environment Federation; strong alignment with water engineering career goals", list: "Recommended", deadline: "2026-03-01" },
-    { name: "AISES Scholarship", amount: 5000, matchScore: 88, winningOdds: 14, tier: "best", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "American Indian Science & Engineering Society; supports Native STEM students", list: "Recommended", deadline: "2026-04-30" },
-    { name: "SWE Scholarship", amount: 10000, matchScore: 85, winningOdds: 8, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Society of Women Engineers; competitive but strong profile match", list: "Recommended", deadline: "2026-03-31" },
-    { name: "ASCE Foundation Scholarship", amount: 3000, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "American Society of Civil Engineers; civil/environmental engineering focus", list: "Recommended", deadline: "2026-03-15" },
-    { name: "AWWA Scholarship", amount: 5000, matchScore: 89, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "American Water Works Association; perfect match for water sustainability major", list: "Recommended", deadline: "2026-04-01" },
-    { name: "Udall Scholarship", amount: 7000, matchScore: 86, winningOdds: 7, tier: "worth", school: "Any", categories: ["Environmental","Leadership","Community Service"], notes: "For students committed to careers related to the environment; strong essay component", list: "Recommended", deadline: "2026-03-05" },
-    { name: "Garden Club of America Scholarship", amount: 5000, matchScore: 84, winningOdds: 14, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Environmental horticulture/conservation; water focus qualifies", list: "Recommended", deadline: "2026-01-17" },
-    { name: "Colorado Water Congress Scholarship", amount: 2500, matchScore: 88, winningOdds: 22, tier: "best", school: "Any", categories: ["Water/Sustainability","State/Local"], notes: "Colorado-focused water policy/engineering; smaller pool, great local match", list: "Recommended", deadline: "2026-04-01" },
-    { name: "Colorado STEM Scholarship", amount: 3000, matchScore: 78, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "Colorado-specific STEM scholarship; relevant for CU Boulder applicants", list: "Recommended", deadline: "2026-04-15" },
-    { name: "EPA P3 Award", amount: 15000, matchScore: 72, winningOdds: 4, tier: "reach", school: "Any", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "EPA sustainability design competition; team-based, high prestige", list: "Recommended", deadline: "2026-12-06" },
-    { name: "Gates Scholarship", amount: 40000, matchScore: 75, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Extremely competitive; full ride for minority students with exceptional profile", list: "Recommended", deadline: "2026-09-15" },
-    { name: "Regeneron Science Talent Search", amount: 25000, matchScore: 68, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Prestigious science research competition; requires original research project", list: "Recommended", deadline: "2026-11-12" },
-    { name: "AEESP Scholarship", amount: 3000, matchScore: 85, winningOdds: 13, tier: "best", school: "Any", categories: ["Environmental","Engineering"], notes: "Association of Environmental Engineering & Science Professors; strong fit", list: "Recommended", deadline: "2026-05-15" },
-    { name: "National Merit Scholarship", amount: 2500, matchScore: 82, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit"], notes: "Based on PSAT/NMSQT; check if scores qualify for semifinalist status", list: "Recommended", deadline: "2026-02-18" },
-    { name: "Rocky Mountain WEA Scholarship", amount: 2000, matchScore: 87, winningOdds: 20, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","State/Local"], notes: "Regional water environment association; great local fit", list: "Recommended", deadline: "2026-02-28" },
-    { name: "ASU Barrett Scholarship", amount: 8000, matchScore: 80, winningOdds: 10, tier: "worth", school: "ASU", categories: ["Academic Merit","Leadership"], notes: "ASU Barrett Honors College merit scholarship", list: "Recommended", deadline: "2026-02-01" },
-    { name: "CU Boulder Engineering Excellence", amount: 5000, matchScore: 79, winningOdds: 9, tier: "worth", school: "CU Boulder", categories: ["Engineering","Academic Merit"], notes: "CU Boulder College of Engineering and Applied Science merit award", list: "Recommended", deadline: "2026-01-15" },
-    { name: "CSU Rams Scholarship", amount: 4000, matchScore: 80, winningOdds: 11, tier: "worth", school: "CSU", categories: ["Academic Merit","Leadership"], notes: "CSU general merit scholarship; GPA and involvement focused", list: "Recommended", deadline: "2026-02-01" },
-    { name: "NSBE Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "National Society of Black Engineers; supports minority STEM students", list: "Recommended", deadline: "2026-06-30" },
-    { name: "WaterReuse Foundation Scholarship", amount: 5000, matchScore: 87, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Focused on water reuse/recycling research; strong thematic fit", list: "Recommended", deadline: "2026-04-15" },
-    { name: "WEFTEC Student Design Award", amount: 3000, matchScore: 84, winningOdds: 12, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water Environment Federation design competition; team project", list: "Recommended", deadline: "2026-05-01" },
-    { name: "ASHRAE Scholarship", amount: 5000, matchScore: 80, winningOdds: 9, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "HVAC/building systems engineering; adjacent to environmental engineering track", list: "Recommended", deadline: "2026-12-01" },
-    { name: "IWA Student Design Competition", amount: 3000, matchScore: 83, winningOdds: 11, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "International Water Association; water-specific competition with awards", list: "Recommended", deadline: "2026-06-01" },
-    { name: "WE (Women's Engineering) Scholarship", amount: 7500, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Broad women in engineering award; profile is strong match", list: "Recommended", deadline: "2026-03-15" },
-    { name: "AMS Freshman Scholarship", amount: 10000, matchScore: 74, winningOdds: 6, tier: "worth", school: "Any", categories: ["STEM","Environmental","Academic Merit"], notes: "American Meteorological Society; environmental science crossover potential", list: "Recommended", deadline: "2026-02-01" },
-    { name: "Smart Irrigation Scholarship", amount: 2000, matchScore: 86, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water efficiency/irrigation technology focus; niche but ideal profile match", list: "Recommended", deadline: "2026-05-15" },
-    { name: "Colorado Environmental Scholarship", amount: 3000, matchScore: 85, winningOdds: 17, tier: "best", school: "Any", categories: ["Environmental","State/Local","Water/Sustainability"], notes: "Colorado environmental focus; strong local match for in-state applicants", list: "Recommended", deadline: "2026-04-15" },
+    { name: "Cobell Scholarship", amount: 8000, matchScore: 92, winningOdds: 15, tier: "best", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For Native American students; strong community/leadership focus", list: "Recommended", deadline: "2026-04-30" , applicationUrl: "https://scholarships.com/search/cobell-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AWRA Scholarship", amount: 2000, matchScore: 90, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","STEM"], notes: "American Water Resources Association; perfect fit for water sustainability focus", list: "Recommended", deadline: "2026-04-23" , applicationUrl: "https://scholarships.com/search/awra-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "SWCS Scholarship", amount: 2000, matchScore: 88, winningOdds: 20, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Soil and Water Conservation Society; ideal for environmental engineering track", list: "Recommended", deadline: "2026-02-10" , applicationUrl: "https://scholarships.com/search/swcs-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "WEF Canham Graduate Award", amount: 5000, matchScore: 87, winningOdds: 12, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Water Environment Federation; strong alignment with water engineering career goals", list: "Recommended", deadline: "2026-03-01" , applicationUrl: "https://scholarships.com/search/wef-canham-graduate-award", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AISES Scholarship", amount: 5000, matchScore: 88, winningOdds: 14, tier: "best", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "American Indian Science & Engineering Society; supports Native STEM students", list: "Recommended", deadline: "2026-04-30" , applicationUrl: "https://scholarships.com/search/aises-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "SWE Scholarship", amount: 10000, matchScore: 85, winningOdds: 8, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Society of Women Engineers; competitive but strong profile match", list: "Recommended", deadline: "2026-03-31" , applicationUrl: "https://scholarships.com/search/swe-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "ASCE Foundation Scholarship", amount: 3000, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "American Society of Civil Engineers; civil/environmental engineering focus", list: "Recommended", deadline: "2026-03-15" , applicationUrl: "https://scholarships.com/search/asce-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AWWA Scholarship", amount: 5000, matchScore: 89, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "American Water Works Association; perfect match for water sustainability major", list: "Recommended", deadline: "2026-04-01" , applicationUrl: "https://scholarships.com/search/awwa-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Udall Scholarship", amount: 7000, matchScore: 86, winningOdds: 7, tier: "worth", school: "Any", categories: ["Environmental","Leadership","Community Service"], notes: "For students committed to careers related to the environment; strong essay component", list: "Recommended", deadline: "2026-03-05" , applicationUrl: "https://scholarships.com/search/udall-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Garden Club of America Scholarship", amount: 5000, matchScore: 84, winningOdds: 14, tier: "best", school: "Any", categories: ["Environmental","Water/Sustainability"], notes: "Environmental horticulture/conservation; water focus qualifies", list: "Recommended", deadline: "2026-01-17" , applicationUrl: "https://scholarships.com/search/garden-club-of-america-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado Water Congress Scholarship", amount: 2500, matchScore: 88, winningOdds: 22, tier: "best", school: "Any", categories: ["Water/Sustainability","State/Local"], notes: "Colorado-focused water policy/engineering; smaller pool, great local match", list: "Recommended", deadline: "2026-04-01" , applicationUrl: "https://scholarships.com/search/colorado-water-congress-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado STEM Scholarship", amount: 3000, matchScore: 78, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "Colorado-specific STEM scholarship; relevant for CU Boulder applicants", list: "Recommended", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/colorado-stem-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "EPA P3 Award", amount: 15000, matchScore: 72, winningOdds: 4, tier: "reach", school: "Any", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "EPA sustainability design competition; team-based, high prestige", list: "Recommended", deadline: "2026-12-06" , applicationUrl: "https://scholarships.com/search/epa-p3-award", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Gates Scholarship", amount: 40000, matchScore: 75, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Extremely competitive; full ride for minority students with exceptional profile", list: "Recommended", deadline: "2026-09-15" , applicationUrl: "https://scholarships.com/search/gates-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Regeneron Science Talent Search", amount: 25000, matchScore: 68, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Prestigious science research competition; requires original research project", list: "Recommended", deadline: "2026-11-12" , applicationUrl: "https://scholarships.com/search/regeneron-science-talent-search", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AEESP Scholarship", amount: 3000, matchScore: 85, winningOdds: 13, tier: "best", school: "Any", categories: ["Environmental","Engineering"], notes: "Association of Environmental Engineering & Science Professors; strong fit", list: "Recommended", deadline: "2026-05-15" , applicationUrl: "https://scholarships.com/search/aeesp-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "National Merit Scholarship", amount: 2500, matchScore: 82, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit"], notes: "Based on PSAT/NMSQT; check if scores qualify for semifinalist status", list: "Recommended", deadline: "2026-02-18" , applicationUrl: "https://scholarships.com/search/national-merit-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Rocky Mountain WEA Scholarship", amount: 2000, matchScore: 87, winningOdds: 20, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","State/Local"], notes: "Regional water environment association; great local fit", list: "Recommended", deadline: "2026-02-28" , applicationUrl: "https://scholarships.com/search/rocky-mountain-wea-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "ASU Barrett Scholarship", amount: 8000, matchScore: 80, winningOdds: 10, tier: "worth", school: "ASU", categories: ["Academic Merit","Leadership"], notes: "ASU Barrett Honors College merit scholarship", list: "Recommended", deadline: "2026-02-01" , applicationUrl: "https://scholarships.com/search/asu-barrett-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CU Boulder Engineering Excellence", amount: 5000, matchScore: 79, winningOdds: 9, tier: "worth", school: "CU Boulder", categories: ["Engineering","Academic Merit"], notes: "CU Boulder College of Engineering and Applied Science merit award", list: "Recommended", deadline: "2026-01-15" , applicationUrl: "https://scholarships.com/search/cu-boulder-engineering-excellence", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CSU Rams Scholarship", amount: 4000, matchScore: 80, winningOdds: 11, tier: "worth", school: "CSU", categories: ["Academic Merit","Leadership"], notes: "CSU general merit scholarship; GPA and involvement focused", list: "Recommended", deadline: "2026-02-01" , applicationUrl: "https://scholarships.com/search/csu-rams-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "NSBE Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "National Society of Black Engineers; supports minority STEM students", list: "Recommended", deadline: "2026-06-30" , applicationUrl: "https://scholarships.com/search/nsbe-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "WaterReuse Foundation Scholarship", amount: 5000, matchScore: 87, winningOdds: 16, tier: "best", school: "Any", categories: ["Water/Sustainability","Environmental","Engineering"], notes: "Focused on water reuse/recycling research; strong thematic fit", list: "Recommended", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/waterreuse-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "WEFTEC Student Design Award", amount: 3000, matchScore: 84, winningOdds: 12, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water Environment Federation design competition; team project", list: "Recommended", deadline: "2026-05-01" , applicationUrl: "https://scholarships.com/search/weftec-student-design-award", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "ASHRAE Scholarship", amount: 5000, matchScore: 80, winningOdds: 9, tier: "worth", school: "Any", categories: ["Engineering","STEM"], notes: "HVAC/building systems engineering; adjacent to environmental engineering track", list: "Recommended", deadline: "2026-12-01" , applicationUrl: "https://scholarships.com/search/ashrae-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "IWA Student Design Competition", amount: 3000, matchScore: 83, winningOdds: 11, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering"], notes: "International Water Association; water-specific competition with awards", list: "Recommended", deadline: "2026-06-01" , applicationUrl: "https://scholarships.com/search/iwa-student-design-competition", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "WE (Women's Engineering) Scholarship", amount: 7500, matchScore: 84, winningOdds: 10, tier: "worth", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Broad women in engineering award; profile is strong match", list: "Recommended", deadline: "2026-03-15" , applicationUrl: "https://scholarships.com/search/we-women-s-engineering-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AMS Freshman Scholarship", amount: 10000, matchScore: 74, winningOdds: 6, tier: "worth", school: "Any", categories: ["STEM","Environmental","Academic Merit"], notes: "American Meteorological Society; environmental science crossover potential", list: "Recommended", deadline: "2026-02-01" , applicationUrl: "https://scholarships.com/search/ams-freshman-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Smart Irrigation Scholarship", amount: 2000, matchScore: 86, winningOdds: 18, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","Environmental"], notes: "Water efficiency/irrigation technology focus; niche but ideal profile match", list: "Recommended", deadline: "2026-05-15" , applicationUrl: "https://scholarships.com/search/smart-irrigation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado Environmental Scholarship", amount: 3000, matchScore: 85, winningOdds: 17, tier: "best", school: "Any", categories: ["Environmental","State/Local","Water/Sustainability"], notes: "Colorado environmental focus; strong local match for in-state applicants", list: "Recommended", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/colorado-environmental-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
 
     // ── ADDITIONAL (30) ──
-    { name: "Coca-Cola Scholars", amount: 20000, matchScore: 70, winningOdds: 1, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "Extremely competitive national scholarship; leadership-driven", list: "Additional", deadline: "2026-10-31" },
-    { name: "Dell Scholars Program", amount: 20000, matchScore: 72, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "For students who have overcome significant obstacles; persistence focused", list: "Additional", deadline: "2026-12-01" },
-    { name: "Elks Most Valuable Student", amount: 12500, matchScore: 74, winningOdds: 4, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Elks Lodge national scholarship; leadership and service emphasis", list: "Additional", deadline: "2026-11-01" },
-    { name: "Cal Poly Environmental Engineering Scholarship", amount: 3500, matchScore: 88, winningOdds: 20, tier: "best", school: "Cal Poly", categories: ["Engineering","Environmental","Cal Poly"], notes: "Departmental scholarship; strong fit for admitted student", list: "Additional", deadline: "2026-03-02" },
-    { name: "CSU Green Initiative Scholarship", amount: 2000, matchScore: 77, winningOdds: 12, tier: "worth", school: "CSU", categories: ["Environmental","Water/Sustainability"], notes: "CSU sustainability focus; relevant for environmental engineering applicants", list: "Additional", deadline: "2026-03-15" },
-    { name: "Colorado Gives Scholarship", amount: 1500, matchScore: 81, winningOdds: 20, tier: "best", school: "Any", categories: ["Community Service","State/Local"], notes: "Colorado community service focus; smaller local pool", list: "Additional", deadline: "2026-04-30" },
-    { name: "AAUW Scholarship", amount: 5000, matchScore: 78, winningOdds: 9, tier: "worth", school: "Any", categories: ["Women in STEM","Academic Merit"], notes: "American Association of University Women; women pursuing STEM degrees", list: "Additional", deadline: "2026-11-15" },
-    { name: "Zonta Amelia Earhart Fellowship", amount: 10000, matchScore: 67, winningOdds: 3, tier: "reach", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Primarily graduate level; check if undergraduate track available", list: "Additional", deadline: "2026-11-15" },
-    { name: "Climate Solutions Scholarship", amount: 3000, matchScore: 82, winningOdds: 11, tier: "worth", school: "Any", categories: ["Environmental","Water/Sustainability","Leadership"], notes: "Climate/sustainability focus; essay-heavy, strong interest match", list: "Additional", deadline: "2026-05-31" },
-    { name: "FIRST Robotics Alumni Scholarship", amount: 2500, matchScore: 73, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "For FIRST Robotics participants; check eligibility", list: "Additional", deadline: "2026-04-15" },
-    { name: "AXA Achievement Scholarship", amount: 10000, matchScore: 71, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Community achievement focus; competitive national pool", list: "Additional", deadline: "2026-12-15" },
-    { name: "Davidson Fellows Scholarship", amount: 25000, matchScore: 66, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Academic Merit","Engineering"], notes: "For exceptional STEM projects; requires significant original work", list: "Additional", deadline: "2026-02-13" },
-    { name: "Siemens Competition", amount: 100000, matchScore: 60, winningOdds: 1, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Top STEM competition; requires independent research project", list: "Additional", deadline: "2026-09-30" },
-    { name: "Jack Kent Cooke Scholarship", amount: 40000, matchScore: 74, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Full scholarship for high-achieving, financially challenged students", list: "Additional", deadline: "2026-09-25" },
-    { name: "Cal Poly Merit Scholarship", amount: 5000, matchScore: 82, winningOdds: 13, tier: "best", school: "Cal Poly", categories: ["Academic Merit","Cal Poly"], notes: "Cal Poly general merit award; leverages accepted student status", list: "Additional", deadline: "2026-03-01" },
-    { name: "Pat Tillman Scholarship", amount: 10000, matchScore: 69, winningOdds: 3, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "For military-connected students or those with strong service commitment", list: "Additional", deadline: "2026-02-28" },
-    { name: "Horatio Alger Scholarship", amount: 25000, matchScore: 73, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For students who have overcome adversity; character-driven award", list: "Additional", deadline: "2026-10-25" },
-    { name: "Hispanic Scholarship Fund", amount: 5000, matchScore: 78, winningOdds: 8, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Largest HSF private scholarship; supports Hispanic college students", list: "Additional", deadline: "2026-02-15" },
-    { name: "National Action Council Scholarship", amount: 2500, matchScore: 75, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Academic Merit","Leadership"], notes: "NACME supports underrepresented minorities in engineering", list: "Additional", deadline: "2026-03-31" },
-    { name: "Tylenol Future Care Scholarship", amount: 10000, matchScore: 63, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Health/wellness/service focus; reach but worth the essay effort", list: "Additional", deadline: "2026-06-30" },
-    { name: "Fulbright U.S. Student Program", amount: 20000, matchScore: 64, winningOdds: 2, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership"], notes: "International study/research grant; post-grad but worth awareness", list: "Additional", deadline: "2026-10-14" },
-    { name: "Paladin Foundation Scholarship", amount: 4000, matchScore: 79, winningOdds: 11, tier: "worth", school: "Any", categories: ["STEM","Leadership","Community Service"], notes: "Colorado-based; STEM + community service emphasis", list: "Additional", deadline: "2026-03-31" },
-    { name: "CU Boulder Environmental Scholarship", amount: 3000, matchScore: 80, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "CU Boulder environmental engineering departmental award", list: "Additional", deadline: "2026-02-15" },
-    { name: "CSU Engineering Scholarship", amount: 4500, matchScore: 80, winningOdds: 10, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering merit scholarship", list: "Additional", deadline: "2026-02-01" },
-    { name: "Walmart Foundation Scholarship", amount: 3000, matchScore: 70, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Need-based with academic component; broad eligibility", list: "Additional", deadline: "2026-01-31" },
-    { name: "Thermo Fisher Scientific Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "STEM focus with lab/science emphasis; engineering aligns well", list: "Additional", deadline: "2026-03-15" },
-    { name: "IEE Foundation Scholarship", amount: 3000, matchScore: 80, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","Environmental"], notes: "Institute of Electrical and Electronics Engineers; engineering merit", list: "Additional", deadline: "2026-10-01" },
-    { name: "Colorado Space Grant Scholarship", amount: 5000, matchScore: 72, winningOdds: 8, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "NASA-affiliated Colorado consortium; STEM engineering focus", list: "Additional", deadline: "2026-04-01" },
-    { name: "BNSF Railway Foundation Scholarship", amount: 2500, matchScore: 76, winningOdds: 9, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Engineering/STEM focus; transportation infrastructure adjacent", list: "Additional", deadline: "2026-03-01" },
-    { name: "CSU College of Engineering Scholarship", amount: 10000, matchScore: 80, winningOdds: 6, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering premier scholarship; high academic bar", list: "Additional", deadline: "2026-02-01" },
+    { name: "Coca-Cola Scholars", amount: 20000, matchScore: 70, winningOdds: 1, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "Extremely competitive national scholarship; leadership-driven", list: "Additional", deadline: "2026-10-31" , applicationUrl: "https://scholarships.com/search/coca-cola-scholars", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Dell Scholars Program", amount: 20000, matchScore: 72, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "For students who have overcome significant obstacles; persistence focused", list: "Additional", deadline: "2026-12-01" , applicationUrl: "https://scholarships.com/search/dell-scholars-program", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Elks Most Valuable Student", amount: 12500, matchScore: 74, winningOdds: 4, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Elks Lodge national scholarship; leadership and service emphasis", list: "Additional", deadline: "2026-11-01" , applicationUrl: "https://scholarships.com/search/elks-most-valuable-student", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Cal Poly Environmental Engineering Scholarship", amount: 3500, matchScore: 88, winningOdds: 20, tier: "best", school: "Cal Poly", categories: ["Engineering","Environmental","Cal Poly"], notes: "Departmental scholarship; strong fit for admitted student", list: "Additional", deadline: "2026-03-02" , applicationUrl: "https://scholarships.com/search/cal-poly-environmental-engineering-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CSU Green Initiative Scholarship", amount: 2000, matchScore: 77, winningOdds: 12, tier: "worth", school: "CSU", categories: ["Environmental","Water/Sustainability"], notes: "CSU sustainability focus; relevant for environmental engineering applicants", list: "Additional", deadline: "2026-03-15" , applicationUrl: "https://scholarships.com/search/csu-green-initiative-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado Gives Scholarship", amount: 1500, matchScore: 81, winningOdds: 20, tier: "best", school: "Any", categories: ["Community Service","State/Local"], notes: "Colorado community service focus; smaller local pool", list: "Additional", deadline: "2026-04-30" , applicationUrl: "https://scholarships.com/search/colorado-gives-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AAUW Scholarship", amount: 5000, matchScore: 78, winningOdds: 9, tier: "worth", school: "Any", categories: ["Women in STEM","Academic Merit"], notes: "American Association of University Women; women pursuing STEM degrees", list: "Additional", deadline: "2026-11-15" , applicationUrl: "https://scholarships.com/search/aauw-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Zonta Amelia Earhart Fellowship", amount: 10000, matchScore: 67, winningOdds: 3, tier: "reach", school: "Any", categories: ["Women in STEM","Engineering","Academic Merit"], notes: "Primarily graduate level; check if undergraduate track available", list: "Additional", deadline: "2026-11-15" , applicationUrl: "https://scholarships.com/search/zonta-amelia-earhart-fellowship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Climate Solutions Scholarship", amount: 3000, matchScore: 82, winningOdds: 11, tier: "worth", school: "Any", categories: ["Environmental","Water/Sustainability","Leadership"], notes: "Climate/sustainability focus; essay-heavy, strong interest match", list: "Additional", deadline: "2026-05-31" , applicationUrl: "https://scholarships.com/search/climate-solutions-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "FIRST Robotics Alumni Scholarship", amount: 2500, matchScore: 73, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Engineering","Leadership"], notes: "For FIRST Robotics participants; check eligibility", list: "Additional", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/first-robotics-alumni-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AXA Achievement Scholarship", amount: 10000, matchScore: 71, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Community achievement focus; competitive national pool", list: "Additional", deadline: "2026-12-15" , applicationUrl: "https://scholarships.com/search/axa-achievement-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Davidson Fellows Scholarship", amount: 25000, matchScore: 66, winningOdds: 2, tier: "reach", school: "Any", categories: ["STEM","Academic Merit","Engineering"], notes: "For exceptional STEM projects; requires significant original work", list: "Additional", deadline: "2026-02-13" , applicationUrl: "https://scholarships.com/search/davidson-fellows-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Siemens Competition", amount: 100000, matchScore: 60, winningOdds: 1, tier: "reach", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Top STEM competition; requires independent research project", list: "Additional", deadline: "2026-09-30" , applicationUrl: "https://scholarships.com/search/siemens-competition", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Jack Kent Cooke Scholarship", amount: 40000, matchScore: 74, winningOdds: 1, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership","Community Service"], notes: "Full scholarship for high-achieving, financially challenged students", list: "Additional", deadline: "2026-09-25" , applicationUrl: "https://scholarships.com/search/jack-kent-cooke-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Cal Poly Merit Scholarship", amount: 5000, matchScore: 82, winningOdds: 13, tier: "best", school: "Cal Poly", categories: ["Academic Merit","Cal Poly"], notes: "Cal Poly general merit award; leverages accepted student status", list: "Additional", deadline: "2026-03-01" , applicationUrl: "https://scholarships.com/search/cal-poly-merit-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Pat Tillman Scholarship", amount: 10000, matchScore: 69, winningOdds: 3, tier: "reach", school: "Any", categories: ["Leadership","Community Service","Academic Merit"], notes: "For military-connected students or those with strong service commitment", list: "Additional", deadline: "2026-02-28" , applicationUrl: "https://scholarships.com/search/pat-tillman-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Horatio Alger Scholarship", amount: 25000, matchScore: 73, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service","Leadership"], notes: "For students who have overcome adversity; character-driven award", list: "Additional", deadline: "2026-10-25" , applicationUrl: "https://scholarships.com/search/horatio-alger-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Hispanic Scholarship Fund", amount: 5000, matchScore: 78, winningOdds: 8, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Largest HSF private scholarship; supports Hispanic college students", list: "Additional", deadline: "2026-02-15" , applicationUrl: "https://scholarships.com/search/hispanic-scholarship-fund", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "National Action Council Scholarship", amount: 2500, matchScore: 75, winningOdds: 10, tier: "worth", school: "Any", categories: ["STEM","Academic Merit","Leadership"], notes: "NACME supports underrepresented minorities in engineering", list: "Additional", deadline: "2026-03-31" , applicationUrl: "https://scholarships.com/search/national-action-council-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Tylenol Future Care Scholarship", amount: 10000, matchScore: 63, winningOdds: 3, tier: "reach", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Health/wellness/service focus; reach but worth the essay effort", list: "Additional", deadline: "2026-06-30" , applicationUrl: "https://scholarships.com/search/tylenol-future-care-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Fulbright U.S. Student Program", amount: 20000, matchScore: 64, winningOdds: 2, tier: "reach", school: "Any", categories: ["Academic Merit","Leadership"], notes: "International study/research grant; post-grad but worth awareness", list: "Additional", deadline: "2026-10-14" , applicationUrl: "https://scholarships.com/search/fulbright-u-s-student-program", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Paladin Foundation Scholarship", amount: 4000, matchScore: 79, winningOdds: 11, tier: "worth", school: "Any", categories: ["STEM","Leadership","Community Service"], notes: "Colorado-based; STEM + community service emphasis", list: "Additional", deadline: "2026-03-31" , applicationUrl: "https://scholarships.com/search/paladin-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CU Boulder Environmental Scholarship", amount: 3000, matchScore: 80, winningOdds: 12, tier: "worth", school: "CU Boulder", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "CU Boulder environmental engineering departmental award", list: "Additional", deadline: "2026-02-15" , applicationUrl: "https://scholarships.com/search/cu-boulder-environmental-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CSU Engineering Scholarship", amount: 4500, matchScore: 80, winningOdds: 10, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering merit scholarship", list: "Additional", deadline: "2026-02-01" , applicationUrl: "https://scholarships.com/search/csu-engineering-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Walmart Foundation Scholarship", amount: 3000, matchScore: 70, winningOdds: 5, tier: "worth", school: "Any", categories: ["Academic Merit","Community Service"], notes: "Need-based with academic component; broad eligibility", list: "Additional", deadline: "2026-01-31" , applicationUrl: "https://scholarships.com/search/walmart-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Thermo Fisher Scientific Scholarship", amount: 5000, matchScore: 76, winningOdds: 7, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "STEM focus with lab/science emphasis; engineering aligns well", list: "Additional", deadline: "2026-03-15" , applicationUrl: "https://scholarships.com/search/thermo-fisher-scientific-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "IEE Foundation Scholarship", amount: 3000, matchScore: 80, winningOdds: 10, tier: "worth", school: "Any", categories: ["Engineering","Environmental"], notes: "Institute of Electrical and Electronics Engineers; engineering merit", list: "Additional", deadline: "2026-10-01" , applicationUrl: "https://scholarships.com/search/iee-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado Space Grant Scholarship", amount: 5000, matchScore: 72, winningOdds: 8, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "NASA-affiliated Colorado consortium; STEM engineering focus", list: "Additional", deadline: "2026-04-01" , applicationUrl: "https://scholarships.com/search/colorado-space-grant-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "BNSF Railway Foundation Scholarship", amount: 2500, matchScore: 76, winningOdds: 9, tier: "worth", school: "Any", categories: ["STEM","Engineering","Academic Merit"], notes: "Engineering/STEM focus; transportation infrastructure adjacent", list: "Additional", deadline: "2026-03-01" , applicationUrl: "https://scholarships.com/search/bnsf-railway-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CSU College of Engineering Scholarship", amount: 10000, matchScore: 80, winningOdds: 6, tier: "worth", school: "CSU", categories: ["Engineering","Academic Merit"], notes: "CSU College of Engineering premier scholarship; high academic bar", list: "Additional", deadline: "2026-02-01" , applicationUrl: "https://scholarships.com/search/csu-college-of-engineering-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
 ,
-    { name: "H.U. Lee Scholarship Foundation", amount: 3000, matchScore: 88, winningOdds: 22, tier: "best", school: "Any", categories: ["Martial Arts","Academic Merit","Leadership"], notes: "American Taekwondo Association; martial arts practitioners with strong academics and character", list: "Additional", deadline: "2026-04-15" },
-    { name: "EREF (Environmental Research & Education Foundation)", amount: 3500, matchScore: 84, winningOdds: 18, tier: "best", school: "Any", categories: ["Environmental","Engineering","Sustainability"], notes: "Multi-year renewable scholarships for environmental research and circular economy focus", list: "Additional", deadline: "2026-04-15" },
-    { name: "Upper Yampa Water Conservancy District - John Fetcher Memorial", amount: 5000, matchScore: 89, winningOdds: 24, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado water-related careers; preference for juniors/seniors in water-related majors; NW Colorado residents preferred", list: "Additional", deadline: "2026-05-23" },
-    { name: "AWRA Colorado - Rich Herbert Memorial Scholarship", amount: 2500, matchScore: 87, winningOdds: 20, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado resident; research/study in hydrology, engineering, water law, water resources; requires presentation at AWRA-CO symposium", list: "Additional", deadline: "2026-12-31" },
-    { name: "ACP Foundation College Scholarship", amount: 6000, matchScore: 86, winningOdds: 21, tier: "best", school: "Any", categories: ["Martial Arts","Academic Merit","Leadership","Community Service"], notes: "1+ years martial arts training; evaluates academics, leadership, extracurriculars, community involvement, martial arts accomplishments", list: "Additional", deadline: "2026-07-31" },
-    { name: "NEHA/AAS Environmental Health Scholarships", amount: 2000, matchScore: 82, winningOdds: 17, tier: "worth", school: "Any", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "Undergraduate/grad in environmental health, water quality, climate resilience; NEHA member status typically required", list: "Additional", deadline: "2026-04-30" },
-    { name: "AEE Foundation - Association of Energy Engineers Local Chapter", amount: 1500, matchScore: 80, winningOdds: 21, tier: "worth", school: "Any", categories: ["Engineering","Energy","State/Local"], notes: "Energy efficiency & sustainability focus; access through local Colorado AEE chapter with varying deadlines", list: "Additional", deadline: "2026-04-26" },
-    { name: "Textbooks and Tatami Martial Arts Scholarship", amount: 1500, matchScore: 81, winningOdds: 23, tier: "worth", school: "Any", categories: ["Martial Arts","Academic Merit"], notes: "High school/undergrad martial arts practitioners with 3.0+ GPA; essay on lessons learned from martial arts; low-income/minority preferred", list: "Additional", deadline: "2026-04-15" },
-    { name: "USA Judo Life Member Scholarship Grants", amount: 2000, matchScore: 78, winningOdds: 18, tier: "worth", school: "Any", categories: ["Martial Arts","Sports","Leadership"], notes: "Judo student-athletes with potential for elite competition; up to $2,000 per semester; income limit ~$30k/year (need-based)", list: "Additional", deadline: "2026-06-30" },
-    { name: "Colorado Space Grant Scholarship", amount: 5000, matchScore: 79, winningOdds: 19, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "NASA-affiliated Colorado consortium; STEM engineering focus; primarily for CU Boulder students", list: "Additional", deadline: "2026-04-01" },
-    { name: "Bruce Lee Foundation Scholarship", amount: 2500, matchScore: 76, winningOdds: 15, tier: "worth", school: "Any", categories: ["Martial Arts","Leadership","Character"], notes: "All students (martial arts helpful but not required); emphasis on balance of mind/body philosophy; character and academics", list: "Additional", deadline: "2026-06-30" },
-    { name: "CWFC - Colorado Water Facilities Council Heavy-Highway-Municipal-Utility Construction", amount: 6500, matchScore: 77, winningOdds: 16, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado students pursuing careers in heavy-highway-municipal-utility construction; rising freshmen to seniors; mandatory celebration dinner in Denver Oct 8", list: "Additional", deadline: "2026-06-30" },
+    { name: "H.U. Lee Scholarship Foundation", amount: 3000, matchScore: 88, winningOdds: 22, tier: "best", school: "Any", categories: ["Martial Arts","Academic Merit","Leadership"], notes: "American Taekwondo Association; martial arts practitioners with strong academics and character", list: "Additional", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/h-u-lee-scholarship-foundation", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "EREF (Environmental Research & Education Foundation)", amount: 3500, matchScore: 84, winningOdds: 18, tier: "best", school: "Any", categories: ["Environmental","Engineering","Sustainability"], notes: "Multi-year renewable scholarships for environmental research and circular economy focus", list: "Additional", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/eref-environmental-research-education-foundation", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Upper Yampa Water Conservancy District - John Fetcher Memorial", amount: 5000, matchScore: 89, winningOdds: 24, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado water-related careers; preference for juniors/seniors in water-related majors; NW Colorado residents preferred", list: "Additional", deadline: "2026-05-23" , applicationUrl: "https://scholarships.com/search/upper-yampa-water-conservancy-district-john-fetcher-memorial", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AWRA Colorado - Rich Herbert Memorial Scholarship", amount: 2500, matchScore: 87, winningOdds: 20, tier: "best", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado resident; research/study in hydrology, engineering, water law, water resources; requires presentation at AWRA-CO symposium", list: "Additional", deadline: "2026-12-31" , applicationUrl: "https://scholarships.com/search/awra-colorado-rich-herbert-memorial-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "ACP Foundation College Scholarship", amount: 6000, matchScore: 86, winningOdds: 21, tier: "best", school: "Any", categories: ["Martial Arts","Academic Merit","Leadership","Community Service"], notes: "1+ years martial arts training; evaluates academics, leadership, extracurriculars, community involvement, martial arts accomplishments", list: "Additional", deadline: "2026-07-31" , applicationUrl: "https://scholarships.com/search/acp-foundation-college-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "NEHA/AAS Environmental Health Scholarships", amount: 2000, matchScore: 82, winningOdds: 17, tier: "worth", school: "Any", categories: ["Environmental","Engineering","Water/Sustainability"], notes: "Undergraduate/grad in environmental health, water quality, climate resilience; NEHA member status typically required", list: "Additional", deadline: "2026-04-30" , applicationUrl: "https://scholarships.com/search/neha-aas-environmental-health-scholarships", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "AEE Foundation - Association of Energy Engineers Local Chapter", amount: 1500, matchScore: 80, winningOdds: 21, tier: "worth", school: "Any", categories: ["Engineering","Energy","State/Local"], notes: "Energy efficiency & sustainability focus; access through local Colorado AEE chapter with varying deadlines", list: "Additional", deadline: "2026-04-26" , applicationUrl: "https://scholarships.com/search/aee-foundation-association-of-energy-engineers-local-chapter", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Textbooks and Tatami Martial Arts Scholarship", amount: 1500, matchScore: 81, winningOdds: 23, tier: "worth", school: "Any", categories: ["Martial Arts","Academic Merit"], notes: "High school/undergrad martial arts practitioners with 3.0+ GPA; essay on lessons learned from martial arts; low-income/minority preferred", list: "Additional", deadline: "2026-04-15" , applicationUrl: "https://scholarships.com/search/textbooks-and-tatami-martial-arts-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "USA Judo Life Member Scholarship Grants", amount: 2000, matchScore: 78, winningOdds: 18, tier: "worth", school: "Any", categories: ["Martial Arts","Sports","Leadership"], notes: "Judo student-athletes with potential for elite competition; up to $2,000 per semester; income limit ~$30k/year (need-based)", list: "Additional", deadline: "2026-06-30" , applicationUrl: "https://scholarships.com/search/usa-judo-life-member-scholarship-grants", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Colorado Space Grant Scholarship", amount: 5000, matchScore: 79, winningOdds: 19, tier: "worth", school: "CU Boulder", categories: ["STEM","Engineering","State/Local"], notes: "NASA-affiliated Colorado consortium; STEM engineering focus; primarily for CU Boulder students", list: "Additional", deadline: "2026-04-01" , applicationUrl: "https://scholarships.com/search/colorado-space-grant-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Bruce Lee Foundation Scholarship", amount: 2500, matchScore: 76, winningOdds: 15, tier: "worth", school: "Any", categories: ["Martial Arts","Leadership","Character"], notes: "All students (martial arts helpful but not required); emphasis on balance of mind/body philosophy; character and academics", list: "Additional", deadline: "2026-06-30" , applicationUrl: "https://scholarships.com/search/bruce-lee-foundation-scholarship", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "CWFC - Colorado Water Facilities Council Heavy-Highway-Municipal-Utility Construction", amount: 6500, matchScore: 77, winningOdds: 16, tier: "worth", school: "Any", categories: ["Water/Sustainability","Engineering","State/Local"], notes: "Colorado students pursuing careers in heavy-highway-municipal-utility construction; rising freshmen to seniors; mandatory celebration dinner in Denver Oct 8", list: "Additional", deadline: "2026-06-30" , applicationUrl: "https://scholarships.com/search/cwfc-colorado-water-facilities-council-heavy-highway-municipal-utility-construction", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
   ];
 
 
@@ -676,6 +956,7 @@
               ${s.categories.slice(0, 3).map(c => `<span class="cat-tag">${c}</span>`).join('')}
             </div>
           </div>
+          <button class="card-open-app-btn" onclick="openApplicationModal('${s.name.replace(/'/g, "\\'")}')">📋 Application</button>
         </div>
       </div>
     `;
@@ -743,9 +1024,162 @@
     render();
   });
 
+  // ═══════════════════════════════════════════════════════
+  // APPLICATION MODAL LOGIC
+  // ═══════════════════════════════════════════════════════
+  const APP_STORAGE_KEY = 'dakotaApplicationData_v1';
+
+  function loadApplicationData() {
+    try {
+      return JSON.parse(localStorage.getItem(APP_STORAGE_KEY) || '{}');
+    } catch { return {}; }
+  }
+
+  function saveApplicationData(data) {
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function getApplicationData(scholarshipName) {
+    const data = loadApplicationData();
+    return data[scholarshipName] || {
+      status: 'Not Started',
+      completedRequirements: [],
+      notes: ''
+    };
+  }
+
+  function saveApplicationField(scholarshipName, field, value) {
+    const data = loadApplicationData();
+    if (!data[scholarshipName]) {
+      data[scholarshipName] = {
+        status: 'Not Started',
+        completedRequirements: [],
+        notes: ''
+      };
+    }
+    data[scholarshipName][field] = value;
+    saveApplicationData(data);
+  }
+
+  function openApplicationModal(scholarshipName) {
+    const scholarship = scholarships.find(s => s.name === scholarshipName);
+    if (!scholarship) return;
+
+    const appData = getApplicationData(scholarshipName);
+
+    // Set modal title
+    document.getElementById('modalTitle').textContent = scholarship.name;
+
+    // Set application URL for button
+    window.currentApplicationUrl = scholarship.applicationUrl;
+    window.currentScholarshipName = scholarshipName;
+
+    // Render status buttons
+    const statusBtns = document.getElementById('statusButtons');
+    statusBtns.innerHTML = `
+      <button class="status-btn ${appData.status === 'Not Started' ? 'active' : ''}" 
+        onclick="setApplicationStatus('Not Started')">Not Started</button>
+      <button class="status-btn applied ${appData.status === 'In Progress' ? 'active' : ''}" 
+        onclick="setApplicationStatus('In Progress')">In Progress</button>
+      <button class="status-btn applied ${appData.status === 'Applied' ? 'active' : ''}" 
+        onclick="setApplicationStatus('Applied')">Applied</button>
+      <button class="status-btn awarded ${appData.status === 'Awarded' ? 'active' : ''}" 
+        onclick="setApplicationStatus('Awarded')">Awarded</button>
+      <button class="status-btn rejected ${appData.status === 'Rejected' ? 'active' : ''}" 
+        onclick="setApplicationStatus('Rejected')">Rejected</button>
+    `;
+
+    // Render requirements checklist
+    const reqList = document.getElementById('requirementsList');
+    reqList.innerHTML = (scholarship.requirements || []).map((req, idx) => {
+      const isCompleted = appData.completedRequirements.includes(idx);
+      return `
+        <label class="requirement-item ${isCompleted ? 'completed' : ''}">
+          <input type="checkbox" ${isCompleted ? 'checked' : ''} 
+            onchange="toggleRequirement(${idx}, this.checked)">
+          <span class="requirement-label">${req}</span>
+        </label>
+      `;
+    }).join('');
+
+    // Update progress
+    updateProgressBar(appData, scholarship);
+
+    // Set notes
+    document.getElementById('notesInput').value = appData.notes;
+    document.getElementById('notesInput').onchange = (e) => {
+      saveApplicationField(scholarshipName, 'notes', e.target.value);
+    };
+
+    // Show modal
+    document.getElementById('modalBackdrop').classList.add('active');
+    document.getElementById('applicationModal').classList.add('active');
+  }
+
+  function setApplicationStatus(status) {
+    const name = window.currentScholarshipName;
+    saveApplicationField(name, 'status', status);
+    
+    // Update button states
+    document.querySelectorAll('.status-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Also update the card's status select
+    const statusSelect = document.querySelector(`select[data-name="${name}"]`);
+    if (statusSelect) {
+      statusSelect.value = status;
+    }
+  }
+
+  function toggleRequirement(idx, isChecked) {
+    const name = window.currentScholarshipName;
+    const appData = getApplicationData(name);
+    
+    if (isChecked && !appData.completedRequirements.includes(idx)) {
+      appData.completedRequirements.push(idx);
+    } else if (!isChecked && appData.completedRequirements.includes(idx)) {
+      appData.completedRequirements = appData.completedRequirements.filter(i => i !== idx);
+    }
+    
+    saveApplicationField(name, 'completedRequirements', appData.completedRequirements);
+
+    // Update visual state
+    const reqItems = document.querySelectorAll('.requirement-item');
+    reqItems[idx].classList.toggle('completed', isChecked);
+
+    // Update progress
+    const scholarship = scholarships.find(s => s.name === name);
+    updateProgressBar(appData, scholarship);
+  }
+
+  function updateProgressBar(appData, scholarship) {
+    const total = (scholarship.requirements || []).length;
+    const completed = appData.completedRequirements.length;
+    const percent = total > 0 ? (completed / total) * 100 : 0;
+
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('progressText').textContent = `${completed}/${total} complete`;
+  }
+
+  function openApplicationLink() {
+    if (window.currentApplicationUrl) {
+      window.open(window.currentApplicationUrl, '_blank');
+    }
+  }
+
+  function closeApplicationModal() {
+    document.getElementById('modalBackdrop').classList.remove('active');
+    document.getElementById('applicationModal').classList.remove('active');
+  }
+
+  document.getElementById('modalBackdrop').addEventListener('click', closeApplicationModal);
+
   // ── INIT ──
   updateStats();
   render();
 </script>
 </body>
 </html>
+
