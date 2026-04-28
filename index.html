@@ -897,6 +897,10 @@
     { name: "Sallie Mae Scholarship Fund", amount: 2500, matchScore: 74, winningOdds: 11, tier: "worth", school: "Any", categories: ["Financial Need", "Academic"], notes: "Financial need + academic merit; no essays required", list: "Batch 2", deadline: "2026-05-15", applicationUrl: "https://scholarships.com/search/sallie-mae-scholarship-fund", requirements: ["Completed application", "Transcript", "Essay/statement"] },
     { name: "Excellence in Undergraduate Research Award", amount: 3500, matchScore: 78, winningOdds: 14, tier: "worth", school: "Any", categories: ["Research", "Academic Excellence"], notes: "For students engaged in research; multiple opportunities nationwide", list: "Batch 2", deadline: "2026-05-31", applicationUrl: "https://scholarships.com/search/excellence-in-undergraduate-research-award", requirements: ["Completed application", "Transcript", "Essay/statement"] },
     { name: "Student Leadership in Sustainability Award", amount: 2500, matchScore: 82, winningOdds: 17, tier: "worth", school: "Any", categories: ["Leadership", "Sustainability"], notes: "Leadership in sustainability initiatives on campus/community", list: "Batch 2", deadline: "2026-06-15", applicationUrl: "https://scholarships.com/search/student-leadership-in-sustainability-award", requirements: ["Completed application", "Transcript", "Essay/statement"] },
+    { name: "Society of Women Engineers Scholarship", amount: 2000, matchScore: 90, winningOdds: 20, tier: "best", school: "Any", categories: ["Women in STEM", "Engineering", "Academic Merit"], notes: "SWE national scholarship; nonrenewable. AWARDED.", list: "Awarded", deadline: "2026-03-31", applicationUrl: "https://swe.org/scholarships/", requirements: ["Completed application", "Transcript", "Essay/statement", "Recommendation letter"] },
+    { name: "Norlin Scholarship", amount: 6000, matchScore: 92, winningOdds: 25, tier: "best", school: "CU Boulder", categories: ["Academic Merit", "Leadership", "Service"], notes: "CU Boulder merit scholarship; renewable. AWARDED.", list: "Awarded", deadline: "2026-02-01", applicationUrl: "https://www.colorado.edu/scholarships/", requirements: ["Completed application", "Transcript"] },
+    { name: "CU Esteemed Scholars-Hale", amount: 4000, matchScore: 91, winningOdds: 25, tier: "best", school: "CU Boulder", categories: ["Academic Merit", "Leadership"], notes: "CU Boulder Esteemed Scholars program - Hale award; renewable. AWARDED.", list: "Awarded", deadline: "2026-02-01", applicationUrl: "https://www.colorado.edu/scholarships/", requirements: ["Completed application", "Transcript"] },
+    { name: "Litz Scholarship", amount: 2500, matchScore: 88, winningOdds: 22, tier: "best", school: "CU Boulder", categories: ["Academic Merit", "Financial Need"], notes: "CU Boulder Litz Scholarship; nonrenewable. AWARDED.", list: "Awarded", deadline: "2026-02-01", applicationUrl: "https://www.colorado.edu/scholarships/", requirements: ["Completed application", "Transcript"] },
 ];
 
 
@@ -1331,6 +1335,26 @@
   }
 
   document.getElementById('modalBackdrop').addEventListener('click', closeApplicationModal);
+
+  // ── SEED AWARDED SCHOLARSHIPS ──
+  // Pre-set known awarded scholarships if not already in localStorage
+  (function seedAwarded() {
+    const awarded = [
+      "Society of Women Engineers Scholarship",
+      "Norlin Scholarship",
+      "CU Esteemed Scholars-Hale",
+      "Litz Scholarship"
+    ];
+    const data = loadApplicationData();
+    let changed = false;
+    awarded.forEach(name => {
+      if (!data[name] || data[name].status === 'Not Started') {
+        data[name] = { status: 'Awarded', completedRequirements: [], notes: '' };
+        changed = true;
+      }
+    });
+    if (changed) saveApplicationData(data);
+  })();
 
   // ── INIT ──
   updateStats();
